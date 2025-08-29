@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/auth-context';
 import { sharedStyles } from '../styles/shared';
 import { Newsfeed } from '../components/newsfeed';
+import { NotificationSettings } from '../components/notification-settings';
 
 export function HomeScreen() {
   const { user, logout } = useAuth();
@@ -30,6 +31,7 @@ export function HomeScreen() {
         </TouchableOpacity>
       </View>
 
+      <NotificationSettings />
       <Newsfeed />
     </SafeAreaView>
   );

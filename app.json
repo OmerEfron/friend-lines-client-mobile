@@ -32,6 +32,16 @@
         "projectId": "friend-lines-mobile"
       }
     },
-    "owner": "friend-lines"
+    "owner": "friend-lines",
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ffffff",
+          "sounds": ["./assets/notification-sound.wav"]
+        }
+      ]
+    ]
   }
 }
