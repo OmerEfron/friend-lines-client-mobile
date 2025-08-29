@@ -8,6 +8,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/auth-context';
 import { sharedStyles } from '../styles/shared';
+import { Newsfeed } from '../components/newsfeed';
 
 export function HomeScreen() {
   const { user, logout } = useAuth();
@@ -18,56 +19,55 @@ export function HomeScreen() {
 
   return (
     <SafeAreaView style={sharedStyles.container}>
-      <View style={sharedStyles.content}>
-        <Text style={sharedStyles.title}>Hello {user?.fullName || user?.username}!</Text>
-        <Text style={sharedStyles.subtitle}>Welcome to Friend Lines</Text>
-        
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoText}>You are successfully logged in</Text>
-          <Text style={styles.infoText}>Username: {user?.username}</Text>
-          <Text style={styles.infoText}>Full Name: {user?.fullName}</Text>
-          <Text style={styles.infoText}>Email: {user?.email}</Text>
-          <Text style={styles.infoText}>User ID: {user?.uuid}</Text>
+      <View style={styles.header}>
+        <View style={styles.userInfo}>
+          <Text style={styles.greeting}>Hello {user?.fullName || user?.username}!</Text>
+          <Text style={styles.subtitle}>Your friends' newsflashes</Text>
         </View>
-
+        
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
       </View>
+
+      <Newsfeed />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  infoContainer: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 40,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
-  infoText: {
-    fontSize: 16,
+  userInfo: {
+    flex: 1,
+  },
+  greeting: {
+    fontSize: 20,
+    fontWeight: '600',
     color: '#333',
-    marginBottom: 8,
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
   },
   logoutButton: {
     backgroundColor: '#FF3B30',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
   },
   logoutButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

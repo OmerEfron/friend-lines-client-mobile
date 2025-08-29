@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContextType, User, LoginCredentials, RegisterCredentials } from '../types/auth';
-import { AuthAPI } from '../services/auth-api';
+import { AuthAPI, UsersAPI } from '../services';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -38,26 +38,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function login(credentials: LoginCredentials) {
     console.log('🔐 [AuthContext] Login function called');
     try {
-      const response = await AuthAPI.login(credentials);
+      // Map the types correctly - our LoginCredentials uses email, but API expects username
+      const response = await AuthAPI.login({
+        username: credentials.email, // Use email as username for the API
+        password: credentials.password
+      });
       console.log('✅ [AuthContext] Login API successful, setting user');
       
       // Ensure user object has required fields
       const userData: User = {
-        uuid: response.user.uuid || response.user.id || response.user._id || 'unknown',
-        username: response.user.username,
-        fullName: response.user.fullName,
-        email: response.user.email,
-        createdAt: response.user.createdAt,
-        updatedAt: response.user.updatedAt,
-        _id: response.user._id,
-        id: response.user.id,
-        __v: response.user.__v
+        uuid: response.data.user.uuid || response.data.user.id || response.data.user._id || 'unknown',
+        username: response.data.user.username,
+        fullName: response.data.user.fullName,
+        email: response.data.user.email,
+        createdAt: response.data.user.createdAt,
+        updatedAt: response.data.user.updatedAt,
+        _id: response.data.user._id,
+        id: response.data.user.id,
+        __v: response.data.user.__v
       };
       
       setUser(userData);
       await AsyncStorage.setItem('user', JSON.stringify(userData));
-      await AsyncStorage.setItem('token', response.token);
+      await AsyncStorage.setItem('token', response.data.token);
       console.log('💾 [AuthContext] User data saved to storage');
+      console.log('🔑 [AuthContext] Token saved:', response.data.token ? 'exists' : 'missing');
+      
+      // Verify token was saved
+      const savedToken = await AsyncStorage.getItem('token');
+      console.log('🔍 [AuthContext] Token verification:', savedToken ? 'saved successfully' : 'failed to save');
     } catch (error) {
       console.error('💥 [AuthContext] Login failed:', error);
       throw error;
@@ -67,26 +76,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function register(credentials: RegisterCredentials) {
     console.log('🔐 [AuthContext] Register function called');
     try {
-      const response = await AuthAPI.register(credentials);
+      const response = await UsersAPI.register({
+        username: credentials.name,
+        fullName: credentials.name,
+        email: credentials.email,
+        password: credentials.password
+      });
       console.log('✅ [AuthContext] Register API successful, setting user');
+      
+      // After successful registration, automatically log the user in
+      console.log('🔄 [AuthContext] Auto-login after registration...');
+      const loginResponse = await AuthAPI.login({
+        username: credentials.email, // Use email as username for login
+        password: credentials.password
+      });
       
       // Ensure user object has required fields
       const userData: User = {
-        uuid: response.user.uuid || response.user.id || response.user._id || 'unknown',
-        username: response.user.username,
-        fullName: response.user.fullName,
-        email: response.user.email,
-        createdAt: response.user.createdAt,
-        updatedAt: response.user.updatedAt,
-        _id: response.user._id,
-        id: response.user.id,
-        __v: response.user.__v
+        uuid: loginResponse.data.user.uuid || loginResponse.data.user.id || loginResponse.data.user._id || 'unknown',
+        username: loginResponse.data.user.username,
+        fullName: loginResponse.data.user.fullName,
+        email: loginResponse.data.user.email,
+        createdAt: loginResponse.data.user.createdAt,
+        updatedAt: loginResponse.data.user.updatedAt,
+        _id: loginResponse.data.user._id,
+        id: loginResponse.data.user.id,
+        __v: loginResponse.data.user.__v
       };
       
       setUser(userData);
       await AsyncStorage.setItem('user', JSON.stringify(userData));
-      await AsyncStorage.setItem('token', response.token);
-      console.log('💾 [AuthContext] User data saved to storage');
+      await AsyncStorage.setItem('token', loginResponse.data.token);
+      console.log('💾 [AuthContext] User data and token saved to storage');
+      console.log('🔑 [AuthContext] Token saved:', loginResponse.data.token ? 'exists' : 'missing');
+      
+      // Verify token was saved
+      const savedToken = await AsyncStorage.getItem('token');
+      console.log('🔍 [AuthContext] Token verification:', savedToken ? 'saved successfully' : 'failed to save');
     } catch (error) {
       console.error('💥 [AuthContext] Register failed:', error);
       throw error;
