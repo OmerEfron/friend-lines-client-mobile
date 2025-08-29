@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Friend Lines Mobile",
-    "slug": "friend-lines-mobile",
+    "slug": "friend-lines-expo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -29,10 +29,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "friend-lines-mobile"
+        "projectId": "ae969778-833a-400e-84e7-ea5de117dc7d"
       }
     },
-    "owner": "friend-lines",
+    "owner": "omerefron",
     "plugins": [
       [
         "expo-notifications",
