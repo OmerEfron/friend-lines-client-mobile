@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Friend Lines Mobile",
-    "slug": "friend-lines-expo",
+    "slug": "friend-lines-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -37,9 +37,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
-          "color": "#ffffff",
-          "sounds": ["./assets/notification-sound.wav"]
+          "color": "#ffffff"
         }
       ]
     ]
