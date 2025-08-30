@@ -7,8 +7,8 @@ export function useNotifications() {
   const [isEnabled, setIsEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [deviceToken, setDeviceToken] = useState<string | null>(null);
-  const { user } = useAuth();
   const [notificationService] = useState(() => new NotificationService());
+  const { user } = useAuth();
 
   const setupNotifications = useCallback(async () => {
     if (!user) return;

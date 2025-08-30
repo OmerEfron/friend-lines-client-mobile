@@ -62,14 +62,23 @@ export class NotificationService {
 
   async getFCMToken(): Promise<string | null> {
     try {
-      // For Expo managed workflow, we'll use Expo push tokens
-      // which can be converted to FCM tokens by Expo's servers
-      const token = await Notifications.getExpoPushTokenAsync({
-        projectId: Constants.expoConfig?.extra?.eas?.projectId || 'friend-lines-mobile',
-      });
-      
-      console.log('🔑 [NotificationService] FCM-compatible token obtained successfully');
-      return token.data;
+      // For dev builds with Firebase, try to get native FCM token first
+      if (Device.isDevice) {
+        try {
+          // Import Firebase messaging dynamically to avoid build issues
+          const messaging = require('@react-native-firebase/messaging').default;
+          const token = await messaging().getToken();
+          console.log('🔑 [NotificationService] Native FCM token obtained successfully');
+          return token;
+        } catch (firebaseError) {
+          console.log('⚠️ [NotificationService] Firebase token failed, falling back to Expo token');
+          // Fallback to Expo token
+          return await this.getExpoPushToken();
+        }
+      } else {
+        // For simulator, use Expo token
+        return await this.getExpoPushToken();
+      }
     } catch (error) {
       console.error('❌ [NotificationService] Error getting FCM token:', error);
       return null;
@@ -83,18 +92,19 @@ export class NotificationService {
         return null;
       }
 
-      // Try to get FCM token first (as expected by your server)
-      const fcmToken = await this.getFCMToken();
-      if (fcmToken) {
-        return fcmToken;
+      // Try to get FCM token first, fallback to Expo token
+      console.log('🔑 [NotificationService] Getting FCM token for dev build...');
+      const token = await this.getFCMToken();
+      
+      if (token) {
+        console.log('✅ [NotificationService] Token obtained successfully');
+        return token;
       }
 
-      // Fallback to Expo push token if FCM fails
-      console.log('⚠️ [NotificationService] FCM token failed, trying Expo token as fallback');
-      const expoToken = await this.getExpoPushToken();
-      return expoToken;
+      console.log('❌ [NotificationService] Failed to get any device token');
+      return null;
     } catch (error) {
-      console.error('❌ [NotificationService] Failed to get any device token:', error);
+      console.error('❌ [NotificationService] Failed to get device token:', error);
       return null;
     }
   }

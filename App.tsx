@@ -35,13 +35,31 @@ export default function App() {
   }, []);
 
   const initializeNotifications = async () => {
+    const notificationService = new NotificationService();
+    
     try {
-      const notificationService = new NotificationService();
+      console.log('🚀 [App] Initializing notifications...');
       
-      // Setup notification handler
-      notificationService.setupNotificationHandler();
+      // Request permissions
+      const hasPermission = await notificationService.requestPermissions();
       
-      console.log('✅ [App] Notifications initialized successfully');
+      if (hasPermission) {
+        console.log('✅ [App] Notification permissions granted');
+        
+        // Get device token - Expo will convert to FCM for your server
+        const deviceToken = await notificationService.getDeviceToken();
+        
+        if (deviceToken) {
+          console.log('✅ [App] Device token obtained:', deviceToken.substring(0, 20) + '...');
+          
+          // Note: Device registration will happen in the useNotifications hook
+          // when the user logs in and we have the auth token
+        } else {
+          console.log('❌ [App] Failed to get device token');
+        }
+      } else {
+        console.log('❌ [App] Notification permissions denied');
+      }
     } catch (error) {
       console.error('❌ [App] Failed to initialize notifications:', error);
     }
