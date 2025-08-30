@@ -8,17 +8,15 @@ export function useNotifications() {
   const [isLoading, setIsLoading] = useState(false);
   const [deviceToken, setDeviceToken] = useState<string | null>(null);
   const { user } = useAuth();
+  const [notificationService] = useState(() => new NotificationService());
 
   const setupNotifications = useCallback(async () => {
     if (!user) return;
     
     setIsLoading(true);
     try {
-      // Setup notification handler
-      await NotificationService.setupNotificationHandler();
-      
       // Request permissions
-      const hasPermission = await NotificationService.requestPermissions();
+      const hasPermission = await notificationService.requestPermissions();
       if (!hasPermission) {
         console.log('❌ [useNotifications] Permission denied');
         setIsEnabled(false);
@@ -26,7 +24,7 @@ export function useNotifications() {
       }
 
       // Get device token
-      const token = await NotificationService.getDeviceToken();
+      const token = await notificationService.getDeviceToken();
       if (!token) {
         console.log('❌ [useNotifications] Failed to get device token');
         setIsEnabled(false);
@@ -39,7 +37,7 @@ export function useNotifications() {
       // Register with server
       const authToken = await AsyncStorage.getItem('token');
       if (authToken) {
-        await NotificationService.registerDeviceWithServer(token, authToken);
+        await notificationService.registerDeviceWithServer(token, authToken);
       }
       
       console.log('✅ [useNotifications] Notifications setup complete');
@@ -49,17 +47,17 @@ export function useNotifications() {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, notificationService]);
 
   const testNotification = useCallback(async () => {
     if (!isEnabled) return;
     
     try {
-      await NotificationService.scheduleTestNotification();
+      await notificationService.scheduleTestNotification();
     } catch (error) {
       console.error('❌ [useNotifications] Test notification failed:', error);
     }
-  }, [isEnabled]);
+  }, [isEnabled, notificationService]);
 
   useEffect(() => {
     if (user) {

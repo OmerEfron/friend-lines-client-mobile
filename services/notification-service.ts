@@ -1,47 +1,107 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import { NotificationsAPI } from './notifications-api';
 
 export class NotificationService {
-  static async requestPermissions(): Promise<boolean> {
-    try {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
+  constructor() {
+    this.setupNotificationHandler();
+  }
+
+  setupNotificationHandler() {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+  }
+
+  async requestPermissions(): Promise<boolean> {
+    if (Device.isDevice) {
+      try {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        
+        if (existingStatus !== 'granted') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+        
+        if (finalStatus !== 'granted') {
+          console.log('❌ [NotificationService] Failed to get push token for push notification!');
+          return false;
+        }
+        
+        return true;
+      } catch (error) {
+        console.error('❌ [NotificationService] Permission request failed:', error);
+        return false;
       }
-      
-      return finalStatus === 'granted';
-    } catch (error) {
-      console.error('❌ [NotificationService] Permission request failed:', error);
+    } else {
+      console.log('📱 [NotificationService] Must use physical device for Push Notifications');
       return false;
     }
   }
 
-  static async getDeviceToken(): Promise<string | null> {
+  async getExpoPushToken(): Promise<string | null> {
+    try {
+      const token = await Notifications.getExpoPushTokenAsync({
+        projectId: Constants.expoConfig?.extra?.eas?.projectId || 'friend-lines-mobile',
+      });
+      console.log('🔑 [NotificationService] Expo push token obtained successfully');
+      return token.data;
+    } catch (error) {
+      console.error('❌ [NotificationService] Error getting Expo push token:', error);
+      return null;
+    }
+  }
+
+  async getFCMToken(): Promise<string | null> {
+    try {
+      // For Expo managed workflow, we'll use Expo push tokens
+      // which can be converted to FCM tokens by Expo's servers
+      const token = await Notifications.getExpoPushTokenAsync({
+        projectId: Constants.expoConfig?.extra?.eas?.projectId || 'friend-lines-mobile',
+      });
+      
+      console.log('🔑 [NotificationService] FCM-compatible token obtained successfully');
+      return token.data;
+    } catch (error) {
+      console.error('❌ [NotificationService] Error getting FCM token:', error);
+      return null;
+    }
+  }
+
+  async getDeviceToken(): Promise<string | null> {
     try {
       if (!Device.isDevice) {
         console.log('📱 [NotificationService] Not a physical device, skipping token');
         return null;
       }
 
-      const token = await Notifications.getExpoPushTokenAsync({
-        projectId: 'friend-lines-mobile' // From your app.json
-      });
+      // Try to get FCM token first (as expected by your server)
+      const fcmToken = await this.getFCMToken();
+      if (fcmToken) {
+        return fcmToken;
+      }
 
-      console.log('🔑 [NotificationService] Device token obtained:', token.data ? 'success' : 'failed');
-      return token.data;
+      // Fallback to Expo push token if FCM fails
+      console.log('⚠️ [NotificationService] FCM token failed, trying Expo token as fallback');
+      const expoToken = await this.getExpoPushToken();
+      return expoToken;
     } catch (error) {
-      console.error('❌ [NotificationService] Failed to get device token:', error);
+      console.error('❌ [NotificationService] Failed to get any device token:', error);
       return null;
     }
   }
 
-  static async registerDeviceWithServer(deviceToken: string, authToken: string): Promise<boolean> {
+  async registerDeviceWithServer(deviceToken: string, authToken: string): Promise<boolean> {
     try {
-      console.log('📡 [NotificationService] Registering device with server...');
+      console.log('📡 [NotificationService] Registering device with Friend Lines API...');
       
       const response = await NotificationsAPI.registerDevice({
         deviceToken,
@@ -49,10 +109,10 @@ export class NotificationService {
       }, authToken);
 
       if (response.success) {
-        console.log('✅ [NotificationService] Device registered successfully');
+        console.log('✅ [NotificationService] Device registered successfully with API');
         return true;
       } else {
-        console.log('❌ [NotificationService] Server registration failed');
+        console.log('❌ [NotificationService] API registration failed');
         return false;
       }
     } catch (error) {
@@ -61,28 +121,69 @@ export class NotificationService {
     }
   }
 
-  static async setupNotificationHandler() {
-    Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-      }),
-    });
-  }
-
-  static async scheduleTestNotification() {
+  async scheduleTestNotification() {
     try {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: "Friend Lines",
           body: "Welcome to Friend Lines! 🎉",
+          data: { type: 'test' },
         },
-        trigger: { seconds: 2 },
+        trigger: { seconds: 2 } as any, // Using type assertion for compatibility
       });
       console.log('✅ [NotificationService] Test notification scheduled');
     } catch (error) {
       console.error('❌ [NotificationService] Failed to schedule test notification:', error);
+    }
+  }
+
+  // Method to handle incoming notifications
+  async handleNotificationReceived(notification: any) {
+    console.log('🔔 [NotificationService] Notification received:', notification);
+    
+    const data = notification.request.content.data;
+    
+    // Handle different notification types as per your server guide
+    switch (data?.type) {
+      case 'newsflash':
+        console.log('📰 [NotificationService] Newsflash notification:', data);
+        // Navigate to newsflash detail
+        break;
+      case 'friend_request':
+        console.log('👥 [NotificationService] Friend request notification:', data);
+        // Navigate to friends screen
+        break;
+      case 'group_invitation':
+        console.log('🏷️ [NotificationService] Group invitation notification:', data);
+        // Navigate to groups screen
+        break;
+      default:
+        console.log('❓ [NotificationService] Unknown notification type:', data?.type);
+    }
+  }
+
+  // Method to handle notification responses (user taps)
+  async handleNotificationResponse(response: any) {
+    console.log('👆 [NotificationService] Notification response:', response);
+    
+    const data = response.notification.request.content.data;
+    
+    // Handle navigation based on notification data
+    switch (data?.type) {
+      case 'newsflash':
+        console.log('📰 [NotificationService] Navigating to newsflash:', data.newsflashId);
+        // navigation.navigate('NewsflashDetail', { id: data.newsflashId });
+        break;
+      case 'friend_request':
+        console.log('👥 [NotificationService] Navigating to friends screen');
+        // navigation.navigate('Friends');
+        break;
+      case 'group_invitation':
+        console.log('🏷️ [NotificationService] Navigating to groups screen');
+        // navigation.navigate('Groups');
+        break;
+      default:
+        console.log('❓ [NotificationService] Unknown notification response type:', data?.type);
     }
   }
 }
