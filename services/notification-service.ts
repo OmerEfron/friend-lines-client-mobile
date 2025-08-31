@@ -150,6 +150,13 @@ export class NotificationService {
   // Method to handle incoming notifications
   async handleNotificationReceived(notification: any) {
     console.log('🔔 [NotificationService] Notification received:', notification);
+    console.log('📱 [NotificationService] Notification details:', {
+      title: notification.request.content.title,
+      body: notification.request.content.body,
+      data: notification.request.content.data,
+      trigger: notification.request.trigger,
+      date: notification.date
+    });
     
     const data = notification.request.content.data;
     

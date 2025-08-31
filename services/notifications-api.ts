@@ -19,6 +19,14 @@ export class NotificationsAPI extends BaseAPI {
     token: string
   ): Promise<RegisterDeviceResponse> {
     console.log('📱 [NotificationsAPI] Registering device:', deviceData);
+    console.log('📤 [NotificationsAPI] Request payload being sent:', {
+      endpoint: '/notifications/register-device',
+      method: 'POST',
+      body: JSON.stringify(deviceData),
+      bodyLength: JSON.stringify(deviceData).length,
+      deviceTokenLength: deviceData.deviceToken.length,
+      platform: deviceData.platform
+    });
 
     return this.authenticatedRequest<RegisterDeviceResponse>(
       '/notifications/register-device',
