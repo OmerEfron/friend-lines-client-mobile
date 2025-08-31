@@ -41,3 +41,8 @@ yarn-error.*
 eas.json
 
 package-lock.json
+
+android/
+ios/
+google-services.json
+GoogleService-Info.plist
