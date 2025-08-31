@@ -42,8 +42,19 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
 
       Alert.alert('Success', 'Friend request accepted!');
       onAccept();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to accept friend request. Please try again.');
+    } catch (error: any) {
+      // Handle specific API error cases gracefully
+      const errorMessage = error?.message || 'Unknown error';
+      
+      if (errorMessage.includes('No pending request found')) {
+        Alert.alert('Request Not Found', 'This friend request is no longer available.');
+        onAccept(); // Refresh the list
+      } else if (errorMessage.includes('User not found')) {
+        Alert.alert('User Not Found', 'The user who sent this request no longer exists.');
+        onAccept(); // Refresh the list
+      } else {
+        Alert.alert('Error', 'Failed to accept friend request. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

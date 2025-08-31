@@ -25,6 +25,19 @@ export class BaseAPI {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`❌ [BaseAPI] Request failed: ${errorText}`);
+        
+        // Try to parse the error response to extract meaningful messages
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.error && errorData.error.message) {
+            throw new Error(errorData.error.message);
+          } else if (errorData.message) {
+            throw new Error(errorData.message);
+          }
+        } catch (parseError) {
+          // If parsing fails, use the raw error text
+        }
+        
         throw new Error(`API request failed: ${response.status} - ${errorText}`);
       }
 

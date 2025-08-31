@@ -41,8 +41,19 @@ export function UserSearchItem({ user }: UserSearchItemProps) {
       );
 
       Alert.alert('Success', 'Friend request sent successfully!');
-    } catch (error) {
-      Alert.alert('Error', 'Failed to send friend request. Please try again.');
+    } catch (error: any) {
+      // Handle specific API error cases gracefully
+      const errorMessage = error?.message || 'Unknown error';
+      
+      if (errorMessage.includes('Already friends')) {
+        Alert.alert('Already Friends', 'You are already friends with this user!');
+      } else if (errorMessage.includes('Both user IDs are required')) {
+        Alert.alert('Invalid Request', 'Unable to process friend request. Please try again.');
+      } else if (errorMessage.includes('Cannot send friend request to yourself')) {
+        Alert.alert('Invalid Request', 'You cannot send a friend request to yourself.');
+      } else {
+        Alert.alert('Error', 'Failed to send friend request. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
