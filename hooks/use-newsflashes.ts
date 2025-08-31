@@ -58,7 +58,13 @@ export function useNewsflashes() {
           setNewsflashes(newNewsflashes);
         }
         
-        setHasMore(pageNum < pagination.totalPages);
+        // Handle missing pagination data gracefully
+        if (pagination) {
+          setHasMore(pageNum < pagination.totalPages);
+        } else {
+          // If no pagination data, assume no more pages if we got fewer than 20 items
+          setHasMore(newNewsflashes.length >= 20);
+        }
         setPage(pageNum);
         console.log('✅ [useNewsflashes] Successfully fetched', newNewsflashes.length, 'newsflashes');
       }

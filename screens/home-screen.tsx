@@ -2,7 +2,6 @@ import React from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,11 +11,7 @@ import { Newsfeed } from '../components/newsfeed';
 import { NotificationSettings } from '../components/notification-settings';
 
 export function HomeScreen() {
-  const { user, logout } = useAuth();
-
-  function handleLogout() {
-    logout();
-  }
+  const { user } = useAuth();
 
   return (
     <SafeAreaView style={sharedStyles.container}>
@@ -25,10 +20,6 @@ export function HomeScreen() {
           <Text style={styles.greeting}>Hello {user?.fullName || user?.username}!</Text>
           <Text style={styles.subtitle}>Your friends' newsflashes</Text>
         </View>
-        
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
       </View>
 
       <NotificationSettings />
@@ -39,11 +30,7 @@ export function HomeScreen() {
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    padding: 20,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
@@ -60,16 +47,5 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: '#666',
-  },
-  logoutButton: {
-    backgroundColor: '#FF3B30',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
   },
 });

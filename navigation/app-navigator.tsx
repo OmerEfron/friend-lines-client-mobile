@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { useAuth } from '../contexts/auth-context';
 import { LoginScreen } from '../screens/login-screen';
 import { RegisterScreen } from '../screens/register-screen';
-import { HomeScreen } from '../screens/home-screen';
+import { TabNavigator } from './tab-navigator';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 
 const Stack = createStackNavigator();
@@ -29,7 +29,7 @@ function AppStack() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Main" component={TabNavigator} />
     </Stack.Navigator>
   );
 }
