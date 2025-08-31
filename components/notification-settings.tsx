@@ -89,4 +89,9 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
   },
+  statusText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
 });

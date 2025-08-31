@@ -7,8 +7,8 @@ import { AppNavigator } from './navigation/app-navigator';
 import { NotificationService } from './services/notification-service';
 
 export default function App() {
-  const notificationListener = useRef();
-  const responseListener = useRef();
+  const notificationListener = useRef<Notifications.Subscription | null>(null);
+  const responseListener = useRef<Notifications.Subscription | null>(null);
 
   useEffect(() => {
     initializeNotifications();
