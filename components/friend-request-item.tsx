@@ -25,6 +25,9 @@ interface FriendRequestItemProps {
 export function FriendRequestItem({ request, onAccept, onReject }: FriendRequestItemProps) {
   const [isLoading, setIsLoading] = useState(false);
 
+  // Debug logging to see the actual request structure
+  console.log('🔍 [FriendRequestItem] Request object:', JSON.stringify(request, null, 2));
+
   const handleAccept = async () => {
     try {
       setIsLoading(true);
@@ -35,8 +38,15 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
         return;
       }
 
+      // Use user1Id if available, otherwise fallback to user2Id
+      const friendId = request.user1Id || request.user2Id;
+      if (!friendId) {
+        Alert.alert('Error', 'Invalid friend request data');
+        return;
+      }
+
       await FriendshipsAPI.acceptFriendRequest(
-        { friendId: request.user1Id },
+        { friendId },
         token
       );
 
@@ -80,16 +90,29 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
     }
   };
 
+  // Safely get the username to display
+  const getDisplayUsername = () => {
+    if (request.user1Id) return request.user1Id;
+    if (request.user2Id) return request.user2Id;
+    return 'Unknown User';
+  };
+
+  // Safely get the first character for avatar
+  const getAvatarChar = () => {
+    const username = getDisplayUsername();
+    return username && username.length > 0 ? username.charAt(0).toUpperCase() : '?';
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>
-          {request.user1Id.charAt(0).toUpperCase()}
+          {getAvatarChar()}
         </Text>
       </View>
 
       <View style={styles.userInfo}>
-        <Text style={styles.username}>@{request.user1Id}</Text>
+        <Text style={styles.username}>@{getDisplayUsername()}</Text>
         <Text style={styles.dateText}>
           Sent {formatDate(request.createdAt)}
         </Text>
