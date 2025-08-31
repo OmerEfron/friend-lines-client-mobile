@@ -14,7 +14,7 @@ export interface SendFriendRequestRequest {
 }
 
 export interface AcceptFriendRequestRequest {
-  requestId: string; // Changed from friendId to requestId - the API expects the friendship request ID
+  friendId: string; // The API expects the UUID of the user who sent the friend request
 }
 
 export interface FriendshipsListResponse {

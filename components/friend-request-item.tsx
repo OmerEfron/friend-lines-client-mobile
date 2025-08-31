@@ -30,10 +30,10 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
         return;
       }
 
-      // Use the friendship request ID (_id) to identify which specific request to accept
-      // The API expects the request ID, not the user UUID
-      const requestId = request._id;
-      if (!requestId) {
+      // Use the user UUID from the request object
+      // According to the API docs, the /friendships/accept endpoint expects the UUID of the user who sent the friend request
+      const friendId = request.uuid;
+      if (!friendId) {
         Alert.alert('Error', 'Invalid friend request data');
         return;
       }
@@ -45,7 +45,7 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
       });
 
       await FriendshipsAPI.acceptFriendRequest(
-        { requestId: request._id }, // Send the friendship request ID, not the user UUID
+        { friendId }, // Send the user UUID as the API expects
         token
       );
 
