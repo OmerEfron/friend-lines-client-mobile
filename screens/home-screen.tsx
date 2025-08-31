@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,23 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/auth-context';
 import { sharedStyles } from '../styles/shared';
-import { Newsfeed } from '../components/newsfeed';
+import { Newsfeed, NewsfeedRef } from '../components/newsfeed';
 import { NotificationSettings } from '../components/notification-settings';
+import { CreateNewsflashButton } from '../components/create-newsflash-button';
 
-export function HomeScreen() {
+export function HomeScreen({ navigation }: any) {
   const { user } = useAuth();
+  const newsfeedRef = useRef<NewsfeedRef>(null);
+
+  const handleCreateNewsflash = () => {
+    navigation.navigate('CreateNewsflash', {
+      onRefresh: () => {
+        if (newsfeedRef.current?.refresh) {
+          newsfeedRef.current.refresh();
+        }
+      }
+    });
+  };
 
   return (
     <SafeAreaView style={sharedStyles.container}>
@@ -23,7 +35,9 @@ export function HomeScreen() {
       </View>
 
       <NotificationSettings />
-      <Newsfeed />
+      <Newsfeed ref={newsfeedRef} />
+      
+      <CreateNewsflashButton onPress={handleCreateNewsflash} />
     </SafeAreaView>
   );
 }

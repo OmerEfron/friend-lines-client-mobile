@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import {
   View,
   Text,
@@ -11,8 +11,16 @@ import { NewsflashItem } from './newsflash-item';
 import { useNewsflashes } from '../hooks/use-newsflashes';
 import { NewsflashWithAuthor } from '../services';
 
-export function Newsfeed() {
+export interface NewsfeedRef {
+  refresh: () => void;
+}
+
+export const Newsfeed = forwardRef<NewsfeedRef>((props, ref) => {
   const { newsflashes, isLoading, error, hasMore, refresh, loadMore } = useNewsflashes();
+
+  useImperativeHandle(ref, () => ({
+    refresh
+  }));
 
   const renderNewsflash = ({ item }: { item: NewsflashWithAuthor }) => (
     <NewsflashItem 
@@ -66,7 +74,7 @@ export function Newsfeed() {
       showsVerticalScrollIndicator={false}
     />
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

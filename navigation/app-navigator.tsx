@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/auth-context';
 import { LoginScreen } from '../screens/login-screen';
 import { RegisterScreen } from '../screens/register-screen';
 import { TabNavigator } from './tab-navigator';
+import { CreateNewsflashScreen } from '../screens/create-newsflash-screen';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 
 const Stack = createStackNavigator();
@@ -30,6 +31,7 @@ function AppStack() {
       }}
     >
       <Stack.Screen name="Main" component={TabNavigator} />
+      <Stack.Screen name="CreateNewsflash" component={CreateNewsflashScreen} />
     </Stack.Navigator>
   );
 }
