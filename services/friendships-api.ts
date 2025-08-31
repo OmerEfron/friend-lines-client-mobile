@@ -40,7 +40,17 @@ export interface FriendshipsListResponse {
 export interface PendingRequestsResponse {
   success: boolean;
   data: {
-    requests: FriendshipRequest[];
+    requests: Array<{
+      _id: string;
+      username: string;
+      fullName: string;
+      email: string;
+      uuid: string;
+      createdAt: string;
+      updatedAt: string;
+      __v: number;
+      id: string;
+    }>;
     pagination: {
       page: number;
       limit: number;

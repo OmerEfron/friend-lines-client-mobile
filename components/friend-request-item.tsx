@@ -7,26 +7,18 @@ import {
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FriendshipsAPI } from '../services';
+import { FriendshipsAPI, PendingRequestsResponse } from '../services';
+
+type FriendRequest = PendingRequestsResponse['data']['requests'][0];
 
 interface FriendRequestItemProps {
-  request: {
-    _id: string;
-    user1Id: string;
-    user2Id: string;
-    status: 'pending' | 'accepted' | 'rejected';
-    createdAt: string;
-    updatedAt: string;
-  };
+  request: FriendRequest;
   onAccept: () => void;
   onReject: () => void;
 }
 
 export function FriendRequestItem({ request, onAccept, onReject }: FriendRequestItemProps) {
   const [isLoading, setIsLoading] = useState(false);
-
-  // Debug logging to see the actual request structure
-  console.log('🔍 [FriendRequestItem] Request object:', JSON.stringify(request, null, 2));
 
   const handleAccept = async () => {
     try {
@@ -38,8 +30,8 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
         return;
       }
 
-      // Use user1Id if available, otherwise fallback to user2Id
-      const friendId = request.user1Id || request.user2Id;
+      // Use the uuid from the request object
+      const friendId = request.uuid;
       if (!friendId) {
         Alert.alert('Error', 'Invalid friend request data');
         return;
@@ -90,17 +82,11 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
     }
   };
 
-  // Safely get the username to display
-  const getDisplayUsername = () => {
-    if (request.user1Id) return request.user1Id;
-    if (request.user2Id) return request.user2Id;
-    return 'Unknown User';
-  };
-
-  // Safely get the first character for avatar
+  // Get the first character for avatar from the username
   const getAvatarChar = () => {
-    const username = getDisplayUsername();
-    return username && username.length > 0 ? username.charAt(0).toUpperCase() : '?';
+    return request.username && request.username.length > 0 
+      ? request.username.charAt(0).toUpperCase() 
+      : '?';
   };
 
   return (
@@ -112,9 +98,10 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
       </View>
 
       <View style={styles.userInfo}>
-        <Text style={styles.username}>@{getDisplayUsername()}</Text>
+        <Text style={styles.username}>@{request.username}</Text>
+        <Text style={styles.fullName}>{request.fullName}</Text>
         <Text style={styles.dateText}>
-          Sent {formatDate(request.createdAt)}
+          Request sent {formatDate(request.createdAt)}
         </Text>
       </View>
 
@@ -173,10 +160,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   username: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#007AFF',
     marginBottom: 4,
+  },
+  fullName: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#333',
+    marginBottom: 2,
   },
   dateText: {
     fontSize: 14,
