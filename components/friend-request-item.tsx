@@ -30,12 +30,19 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
         return;
       }
 
-      // Use the uuid from the request object
+      // Use the user UUID from the request object
+      // The API expects the UUID of the user who sent the friend request
       const friendId = request.uuid;
       if (!friendId) {
         Alert.alert('Error', 'Invalid friend request data');
         return;
       }
+
+      console.log('🔍 [FriendRequestItem] Accepting request for user:', {
+        username: request.username,
+        uuid: request.uuid,
+        requestId: request._id
+      });
 
       await FriendshipsAPI.acceptFriendRequest(
         { friendId },
@@ -48,8 +55,10 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
       // Handle specific API error cases gracefully
       const errorMessage = error?.message || 'Unknown error';
       
-      if (errorMessage.includes('No pending request found')) {
-        Alert.alert('Request Not Found', 'This friend request is no longer available.');
+      console.log('❌ [FriendRequestItem] Error accepting request:', errorMessage);
+      
+      if (errorMessage.includes('No friend request found')) {
+        Alert.alert('Request Not Found', 'This friend request is no longer available or has already been processed.');
         onAccept(); // Refresh the list
       } else if (errorMessage.includes('User not found')) {
         Alert.alert('User Not Found', 'The user who sent this request no longer exists.');
