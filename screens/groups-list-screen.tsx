@@ -1,14 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGroups } from '../hooks/use-groups';
 import { GroupItem } from '../components/group-item';
 import { Group } from '../services/groups-api';
-import { sharedStyles } from '../styles/shared';
+import { useTheme } from '../contexts/theme-context';
+import { TopBar } from '../components/top-bar';
+import { Button } from '../components/ui/button';
 
 export function GroupsListScreen({ navigation }: any) {
   const { groups, isLoading, error, hasMore, refresh, loadMore } = useGroups();
+  const { theme } = useTheme();
 
   const handleGroupPress = (group: Group) => {
     navigation.navigate('GroupDetails', { group });
@@ -16,6 +18,19 @@ export function GroupsListScreen({ navigation }: any) {
 
   const handleCreateGroup = () => {
     navigation.navigate('CreateGroup');
+  };
+
+  const handleSearch = () => {
+    // Navigate to search screen
+    console.log('Search pressed');
+  };
+
+  const handleInbox = () => {
+    navigation.navigate('Inbox');
+  };
+
+  const handleLogo = () => {
+    navigation.navigate('Home');
   };
 
   const renderGroup = ({ item }: { item: Group }) => (
@@ -26,49 +41,133 @@ export function GroupsListScreen({ navigation }: any) {
     if (!hasMore) return null;
     
     return (
-      <View style={styles.footer}>
-        <ActivityIndicator size="small" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading more...</Text>
+      <View style={getFooterStyle()}>
+        <ActivityIndicator size="small" color={theme.colors.brand.primary} />
+        <Text style={getLoadingTextStyle()}>Loading more...</Text>
       </View>
     );
   };
 
   const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>No groups yet</Text>
-      <Text style={styles.emptySubtitle}>
+    <View style={getEmptyStyle()}>
+      <Text style={getEmptyTitleStyle()}>No groups yet</Text>
+      <Text style={getEmptySubtitleStyle()}>
         Create your first group to start sharing newsflashes with specific friends
       </Text>
+      <Button
+        title="Create Group"
+        onPress={handleCreateGroup}
+        variant="primary"
+        size="md"
+        style={getCreateButtonStyle()}
+      />
     </View>
   );
 
+  const getContainerStyle = () => ({
+    flex: 1,
+    backgroundColor: theme.colors.bg,
+  });
+
+  const getListStyle = () => ({
+    paddingTop: theme.space[2],
+    paddingBottom: theme.space[8],
+  });
+
+  const getFooterStyle = () => ({
+    flexDirection: 'row' as const,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    padding: theme.space[4],
+  });
+
+  const getLoadingTextStyle = () => ({
+    marginLeft: theme.space[2],
+    fontSize: theme.fonts.roles.caption.size,
+    color: theme.colors['text-muted'],
+  });
+
+  const getEmptyStyle = () => ({
+    alignItems: 'center' as const,
+    padding: theme.space[8],
+  });
+
+  const getEmptyTitleStyle = () => ({
+    fontSize: theme.fonts.roles.title.size,
+    fontWeight: theme.fonts.roles.title.weight,
+    color: theme.colors.text,
+    marginBottom: theme.space[2],
+  });
+
+  const getEmptySubtitleStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+    marginBottom: theme.space[6],
+  });
+
+  const getCreateButtonStyle = () => ({
+    marginTop: theme.space[4],
+  });
+
+  const getErrorStyle = () => ({
+    alignItems: 'center' as const,
+    padding: theme.space[8],
+  });
+
+  const getErrorTitleStyle = () => ({
+    fontSize: theme.fonts.roles.title.size,
+    fontWeight: theme.fonts.roles.title.weight,
+    color: theme.colors.semantic.error,
+    marginBottom: theme.space[2],
+  });
+
+  const getErrorMessageStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+  });
+
   if (error) {
     return (
-      <SafeAreaView style={sharedStyles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Something went wrong</Text>
-          <Text style={styles.errorMessage}>{error}</Text>
+      <SafeAreaView style={getContainerStyle()}>
+        <TopBar
+          title="Groups"
+          onPressLogo={handleLogo}
+          onPressSearch={handleSearch}
+          onPressInbox={handleInbox}
+        />
+        <View style={getErrorStyle()}>
+          <Text style={getErrorTitleStyle()}>Something went wrong</Text>
+          <Text style={getErrorMessageStyle()}>{error}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={sharedStyles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>My Groups</Text>
-        <TouchableOpacity onPress={handleCreateGroup} style={styles.createButton}>
-          <Ionicons name="add" size={24} color="#007AFF" />
-        </TouchableOpacity>
-      </View>
+    <SafeAreaView style={getContainerStyle()}>
+      <TopBar
+        title="Groups"
+        onPressLogo={handleLogo}
+        onPressSearch={handleSearch}
+        onPressInbox={handleInbox}
+        onOpenSectionPicker={handleCreateGroup}
+      />
 
       <FlatList
         data={groups}
         renderItem={renderGroup}
         keyExtractor={(item) => item._id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={getListStyle()}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refresh} />
+          <RefreshControl 
+            refreshing={isLoading} 
+            onRefresh={refresh}
+            tintColor={theme.colors.brand.primary}
+          />
         }
         onEndReached={loadMore}
         onEndReachedThreshold={0.1}
@@ -80,69 +179,4 @@ export function GroupsListScreen({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
-  },
-  createButton: {
-    padding: 8,
-  },
-  list: {
-    paddingTop: 8,
-    paddingBottom: 32,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  loadingText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#666',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  errorContainer: {
-    alignItems: 'center',
-    padding: 32,
-  },
-  errorTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FF3B30',
-    marginBottom: 8,
-  },
-  errorMessage: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-});
+// Styles are now handled by theme system

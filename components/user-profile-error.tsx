@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
+import { useTheme } from '../contexts/theme-context';
+import { Button } from './ui/button';
 
 interface UserProfileErrorProps {
   error: string;
@@ -7,61 +9,59 @@ interface UserProfileErrorProps {
 }
 
 export function UserProfileError({ error, onRetry }: UserProfileErrorProps) {
+  const { theme } = useTheme();
+
+  const getContainerStyle = () => ({
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    backgroundColor: theme.colors.bg,
+    padding: theme.space[5],
+  });
+
+  const getErrorContentStyle = () => ({
+    alignItems: 'center' as const,
+    maxWidth: 300,
+  });
+
+  const getErrorIconStyle = () => ({
+    fontSize: 48,
+    marginBottom: theme.space[4],
+  });
+
+  const getErrorTitleStyle = () => ({
+    fontSize: theme.fonts.roles.title.size,
+    fontWeight: theme.fonts.roles.title.weight,
+    color: theme.colors.text,
+    marginBottom: theme.space[2],
+    textAlign: 'center' as const,
+  });
+
+  const getErrorMessageStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+    marginBottom: theme.space[6],
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+  });
+
   return (
-    <View style={styles.container}>
-      <View style={styles.errorContent}>
-        <Text style={styles.errorIcon}>⚠️</Text>
-        <Text style={styles.errorTitle}>Unable to load profile</Text>
-        <Text style={styles.errorMessage}>{error}</Text>
+    <View style={getContainerStyle()}>
+      <View style={getErrorContentStyle()}>
+        <Text style={getErrorIconStyle()}>⚠️</Text>
+        <Text style={getErrorTitleStyle()}>Unable to load profile</Text>
+        <Text style={getErrorMessageStyle()}>{error}</Text>
         {onRetry && (
-          <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
-            <Text style={styles.retryButtonText}>Try Again</Text>
-          </TouchableOpacity>
+          <Button
+            title="Try Again"
+            onPress={onRetry}
+            variant="primary"
+            size="md"
+          />
         )}
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-  },
-  errorContent: {
-    alignItems: 'center',
-    maxWidth: 300,
-  },
-  errorIcon: {
-    fontSize: 48,
-    marginBottom: 16,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  errorMessage: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 22,
-  },
-  retryButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
+// Styles are now handled by theme system

@@ -1,12 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { UserProfile } from '../types/profile';
+import { useTheme } from '../contexts/theme-context';
+import { Avatar } from './ui/avatar';
 
 interface UserProfileHeaderProps {
   profile: UserProfile;
 }
 
 export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
+  const { theme } = useTheme();
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -20,19 +24,56 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
     }
   };
 
+  const getContainerStyle = () => ({
+    alignItems: 'center' as const,
+    padding: theme.space[6],
+    backgroundColor: theme.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.divider,
+  });
+
+  const getUserInfoStyle = () => ({
+    alignItems: 'center' as const,
+    marginTop: theme.space[4],
+  });
+
+  const getFullNameStyle = () => ({
+    fontSize: theme.fonts.roles.headline.size,
+    fontWeight: theme.fonts.roles.headline.weight,
+    color: theme.colors.text,
+    marginBottom: theme.space[1],
+  });
+
+  const getUsernameStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors.brand.primary,
+    marginBottom: theme.space[2],
+  });
+
+  const getEmailStyle = () => ({
+    fontSize: theme.fonts.roles.caption.size,
+    color: theme.colors['text-muted'],
+    marginBottom: theme.space[2],
+  });
+
+  const getJoinedDateStyle = () => ({
+    fontSize: theme.fonts.roles.meta.size,
+    color: theme.colors['text-muted'],
+  });
+
   return (
-    <View style={styles.container}>
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>
-          {profile.fullName.charAt(0).toUpperCase()}
-        </Text>
-      </View>
+    <View style={getContainerStyle()}>
+      <Avatar
+        size="xl"
+        name={profile.fullName}
+        source={profile.avatar ? { uri: profile.avatar } : undefined}
+      />
       
-      <View style={styles.userInfo}>
-        <Text style={styles.fullName}>{profile.fullName}</Text>
-        <Text style={styles.username}>@{profile.username}</Text>
-        <Text style={styles.email}>{profile.email}</Text>
-        <Text style={styles.joinedDate}>
+      <View style={getUserInfoStyle()}>
+        <Text style={getFullNameStyle()}>{profile.fullName}</Text>
+        <Text style={getUsernameStyle()}>@{profile.username}</Text>
+        <Text style={getEmailStyle()}>{profile.email}</Text>
+        <Text style={getJoinedDateStyle()}>
           Joined {formatDate(profile.createdAt)}
         </Text>
       </View>
@@ -40,49 +81,4 @@ export function UserProfileHeader({ profile }: UserProfileHeaderProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    padding: 24,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  avatarText: {
-    color: '#fff',
-    fontSize: 36,
-    fontWeight: '600',
-  },
-  userInfo: {
-    alignItems: 'center',
-  },
-  fullName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 4,
-  },
-  username: {
-    fontSize: 16,
-    color: '#007AFF',
-    marginBottom: 8,
-  },
-  email: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
-  joinedDate: {
-    fontSize: 12,
-    color: '#999',
-  },
-});
+// Styles are now handled by theme system

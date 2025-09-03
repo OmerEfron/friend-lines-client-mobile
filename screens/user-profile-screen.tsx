@@ -1,11 +1,12 @@
 import React from 'react';
-import { SafeAreaView, ScrollView, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { SafeAreaView, ScrollView, View, Text, ActivityIndicator } from 'react-native';
 import { useUserProfile, useUserNewsflashes } from '../hooks';
 import { UserProfileHeader } from '../components/user-profile-header';
 import { UserProfileStats } from '../components/user-profile-stats';
 import { UserNewsflashesList } from '../components/user-newsflashes-list';
 import { UserProfileError } from '../components/user-profile-error';
-import { sharedStyles } from '../styles/shared';
+import { useTheme } from '../contexts/theme-context';
+import { TopBar } from '../components/top-bar';
 
 interface UserProfileScreenProps {
   route?: {
@@ -19,29 +20,95 @@ export function UserProfileScreen({ route }: UserProfileScreenProps) {
   const { userId } = route?.params || {};
   const { profile, isLoading: profileLoading, error: profileError } = useUserProfile(userId);
   const { newsflashes, isLoading: newsflashesLoading, error: newsflashesError, hasMore, refresh, loadMore } = useUserNewsflashes(userId);
+  const { theme } = useTheme();
+
+  const handleSearch = () => {
+    // Navigate to search screen
+    console.log('Search pressed');
+  };
+
+  const handleInbox = () => {
+    // Navigate to inbox
+    console.log('Inbox pressed');
+  };
+
+  const handleLogo = () => {
+    // Navigate to home
+    console.log('Logo pressed');
+  };
+
+  const getContainerStyle = () => ({
+    flex: 1,
+    backgroundColor: theme.colors.bg,
+  });
+
+  const getLoadingStyle = () => ({
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    padding: theme.space[5],
+  });
+
+  const getLoadingTextStyle = () => ({
+    marginTop: theme.space[3],
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+  });
 
   if (profileError) {
-    return <UserProfileError error={profileError} />;
+    return (
+      <SafeAreaView style={getContainerStyle()}>
+        <TopBar
+          title="Profile"
+          onPressLogo={handleLogo}
+          onPressSearch={handleSearch}
+          onPressInbox={handleInbox}
+        />
+        <UserProfileError error={profileError} />
+      </SafeAreaView>
+    );
   }
 
   if (profileLoading) {
     return (
-      <SafeAreaView style={sharedStyles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Loading profile...</Text>
+      <SafeAreaView style={getContainerStyle()}>
+        <TopBar
+          title="Profile"
+          onPressLogo={handleLogo}
+          onPressSearch={handleSearch}
+          onPressInbox={handleInbox}
+        />
+        <View style={getLoadingStyle()}>
+          <ActivityIndicator size="large" color={theme.colors.brand.primary} />
+          <Text style={getLoadingTextStyle()}>Loading profile...</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   if (!profile) {
-    return <UserProfileError error="Profile not found" />;
+    return (
+      <SafeAreaView style={getContainerStyle()}>
+        <TopBar
+          title="Profile"
+          onPressLogo={handleLogo}
+          onPressSearch={handleSearch}
+          onPressInbox={handleInbox}
+        />
+        <UserProfileError error="Profile not found" />
+      </SafeAreaView>
+    );
   }
 
   return (
-    <SafeAreaView style={sharedStyles.container}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={getContainerStyle()}>
+      <TopBar
+        title="Profile"
+        onPressLogo={handleLogo}
+        onPressSearch={handleSearch}
+        onPressInbox={handleInbox}
+      />
+      <ScrollView showsVerticalScrollIndicator={false}>
         <UserProfileHeader profile={profile} />
         <UserProfileStats profile={profile} />
         <UserNewsflashesList
@@ -57,19 +124,4 @@ export function UserProfileScreen({ route }: UserProfileScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#666',
-  },
-});
+// Styles are now handled by theme system

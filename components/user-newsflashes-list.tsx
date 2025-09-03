@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { NewsflashItem } from './newsflash-item';
+import { useTheme } from '../contexts/theme-context';
 
 interface NewsflashWithAuthor {
   _id: string;
@@ -38,6 +39,8 @@ export function UserNewsflashesList({
   onRefresh,
   onLoadMore,
 }: UserNewsflashesListProps) {
+  const { theme } = useTheme();
+
   const renderNewsflash = ({ item }: { item: NewsflashWithAuthor }) => (
     <NewsflashItem newsflash={item} />
   );
@@ -46,33 +49,89 @@ export function UserNewsflashesList({
     if (!isLoading || newsflashes.length === 0) return null;
     
     return (
-      <View style={styles.footer}>
-        <ActivityIndicator size="small" color="#007AFF" />
+      <View style={getFooterStyle()}>
+        <ActivityIndicator size="small" color={theme.colors.brand.primary} />
       </View>
     );
   };
 
   const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>No newsflashes yet</Text>
-      <Text style={styles.emptySubtext}>
+    <View style={getEmptyStyle()}>
+      <Text style={getEmptyTextStyle()}>No newsflashes yet</Text>
+      <Text style={getEmptySubtextStyle()}>
         This user hasn't shared any newsflashes
       </Text>
     </View>
   );
 
+  const getContainerStyle = () => ({
+    flex: 1,
+    backgroundColor: theme.colors.surface,
+  });
+
+  const getSectionTitleStyle = () => ({
+    fontSize: theme.fonts.roles.title.size,
+    fontWeight: theme.fonts.roles.title.weight,
+    color: theme.colors.text,
+    paddingHorizontal: theme.space[5],
+    paddingVertical: theme.space[4],
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.divider,
+  });
+
+  const getFooterStyle = () => ({
+    padding: theme.space[5],
+    alignItems: 'center' as const,
+  });
+
+  const getEmptyStyle = () => ({
+    padding: theme.space[10],
+    alignItems: 'center' as const,
+  });
+
+  const getEmptyTextStyle = () => ({
+    fontSize: theme.fonts.roles.title.size,
+    fontWeight: theme.fonts.roles.title.weight,
+    color: theme.colors['text-muted'],
+    marginBottom: theme.space[2],
+  });
+
+  const getEmptySubtextStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+  });
+
+  const getErrorStyle = () => ({
+    padding: theme.space[5],
+    alignItems: 'center' as const,
+  });
+
+  const getErrorTextStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    fontWeight: theme.fonts.roles.body.weight,
+    color: theme.colors.semantic.error,
+    marginBottom: theme.space[1],
+  });
+
+  const getErrorSubtextStyle = () => ({
+    fontSize: theme.fonts.roles.caption.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+  });
+
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Failed to load newsflashes</Text>
-        <Text style={styles.errorSubtext}>{error}</Text>
+      <View style={getErrorStyle()}>
+        <Text style={getErrorTextStyle()}>Failed to load newsflashes</Text>
+        <Text style={getErrorSubtextStyle()}>{error}</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Newsflashes</Text>
+    <View style={getContainerStyle()}>
+      <Text style={getSectionTitleStyle()}>Newsflashes</Text>
       <FlatList
         data={newsflashes}
         renderItem={renderNewsflash}
@@ -80,7 +139,11 @@ export function UserNewsflashesList({
         ListEmptyComponent={renderEmpty}
         ListFooterComponent={renderFooter}
         refreshControl={
-          <RefreshControl refreshing={isLoading && newsflashes.length === 0} onRefresh={onRefresh} />
+          <RefreshControl 
+            refreshing={isLoading && newsflashes.length === 0} 
+            onRefresh={onRefresh}
+            tintColor={theme.colors.brand.primary}
+          />
         }
         onEndReached={hasMore ? onLoadMore : undefined}
         onEndReachedThreshold={0.1}
@@ -91,52 +154,4 @@ export function UserNewsflashesList({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#333',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  footer: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  emptyContainer: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#666',
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
-  },
-  errorContainer: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  errorText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FF3B30',
-    marginBottom: 4,
-  },
-  errorSubtext: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-  },
-});
+// Styles are now handled by theme system

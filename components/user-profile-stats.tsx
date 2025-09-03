@@ -1,12 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { UserProfile } from '../types/profile';
+import { useTheme } from '../contexts/theme-context';
 
 interface UserProfileStatsProps {
   profile: UserProfile;
 }
 
 export function UserProfileStats({ profile }: UserProfileStatsProps) {
+  const { theme } = useTheme();
+
   // For now, we'll show placeholder stats
   // In a real app, you'd fetch these from the API
   const stats = [
@@ -15,13 +18,44 @@ export function UserProfileStats({ profile }: UserProfileStatsProps) {
     { label: 'Newsflashes', value: '0' },
   ];
 
+  const getContainerStyle = () => ({
+    backgroundColor: theme.colors.surface,
+    paddingVertical: theme.space[5],
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.divider,
+  });
+
+  const getStatsRowStyle = () => ({
+    flexDirection: 'row' as const,
+    justifyContent: 'space-around' as const,
+    paddingHorizontal: theme.space[5],
+  });
+
+  const getStatItemStyle = () => ({
+    alignItems: 'center' as const,
+  });
+
+  const getStatValueStyle = () => ({
+    fontSize: theme.fonts.roles.headline.size,
+    fontWeight: theme.fonts.roles.headline.weight,
+    color: theme.colors.text,
+    marginBottom: theme.space[1],
+  });
+
+  const getStatLabelStyle = () => ({
+    fontSize: theme.fonts.roles.caption.size,
+    color: theme.colors['text-muted'],
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.5,
+  });
+
   return (
-    <View style={styles.container}>
-      <View style={styles.statsRow}>
+    <View style={getContainerStyle()}>
+      <View style={getStatsRowStyle()}>
         {stats.map((stat, index) => (
-          <View key={stat.label} style={styles.statItem}>
-            <Text style={styles.statValue}>{stat.value}</Text>
-            <Text style={styles.statLabel}>{stat.label}</Text>
+          <View key={stat.label} style={getStatItemStyle()}>
+            <Text style={getStatValueStyle()}>{stat.value}</Text>
+            <Text style={getStatLabelStyle()}>{stat.label}</Text>
           </View>
         ))}
       </View>
@@ -29,31 +63,4 @@ export function UserProfileStats({ profile }: UserProfileStatsProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 20,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#666',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-});
+// Styles are now handled by theme system

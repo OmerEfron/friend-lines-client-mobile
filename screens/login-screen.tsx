@@ -2,21 +2,22 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/auth-context';
-import { sharedStyles } from '../styles/shared';
+import { useTheme } from '../contexts/theme-context';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 
 export function LoginScreen({ navigation }: { navigation: any }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const { theme } = useTheme();
 
   async function handleLogin() {
     if (!email || !password) {
@@ -34,19 +35,60 @@ export function LoginScreen({ navigation }: { navigation: any }) {
     }
   }
 
+  const getContainerStyle = () => ({
+    flex: 1,
+    backgroundColor: theme.colors.bg,
+  });
+
+  const getContentStyle = () => ({
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: theme.space[5],
+  });
+
+  const getTitleStyle = () => ({
+    fontSize: theme.fonts.roles.headline.size,
+    fontWeight: theme.fonts.roles.headline.weight,
+    lineHeight: theme.fonts.roles.headline.size * theme.fonts.roles.headline.lh,
+    color: theme.colors.text,
+    textAlign: 'center' as const,
+    marginBottom: theme.space[2],
+  });
+
+  const getSubtitleStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+    marginBottom: theme.space[8],
+  });
+
+  const getFormStyle = () => ({
+    width: '100%',
+  });
+
+  const getLinkButtonStyle = () => ({
+    alignItems: 'center' as const,
+    marginTop: theme.space[4],
+  });
+
+  const getLinkTextStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors.brand.primary,
+  });
+
   return (
-    <SafeAreaView style={sharedStyles.container}>
+    <SafeAreaView style={getContainerStyle()}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={sharedStyles.content}
+        style={getContentStyle()}
       >
-        <Text style={sharedStyles.title}>Welcome Back</Text>
-        <Text style={sharedStyles.subtitle}>Sign in to your account</Text>
+        <Text style={getTitleStyle()}>Welcome Back</Text>
+        <Text style={getSubtitleStyle()}>Sign in to your account</Text>
 
-        <View style={sharedStyles.form}>
-          <TextInput
-            style={sharedStyles.input}
-            placeholder="Email"
+        <View style={getFormStyle()}>
+          <Input
+            label="Email"
+            placeholder="Enter your email"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -54,37 +96,31 @@ export function LoginScreen({ navigation }: { navigation: any }) {
             autoCorrect={false}
           />
 
-          <TextInput
-            style={sharedStyles.input}
-            placeholder="Password"
+          <Input
+            label="Password"
+            placeholder="Enter your password"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
             autoCapitalize="none"
           />
 
-          <TouchableOpacity
-            style={[
-              sharedStyles.button,
-              { backgroundColor: '#007AFF' },
-              isLoading && sharedStyles.buttonDisabled
-            ]}
+          <Button
+            title={isLoading ? 'Signing In...' : 'Sign In'}
             onPress={handleLogin}
+            loading={isLoading}
             disabled={isLoading}
-          >
-            <Text style={sharedStyles.buttonText}>
-              {isLoading ? 'Signing In...' : 'Sign In'}
-            </Text>
-          </TouchableOpacity>
+            variant="primary"
+            size="lg"
+          />
 
-          <TouchableOpacity
-            style={sharedStyles.linkButton}
+          <Button
+            title="Don't have an account? Sign up"
             onPress={() => navigation.navigate('Register')}
-          >
-            <Text style={sharedStyles.linkText}>
-              Don't have an account? Sign up
-            </Text>
-          </TouchableOpacity>
+            variant="tertiary"
+            size="md"
+            style={getLinkButtonStyle()}
+          />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

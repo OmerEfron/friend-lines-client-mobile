@@ -1,9 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import { useNotifications } from '../hooks/use-notifications';
+import { useTheme } from '../contexts/theme-context';
+import { Button } from './ui/button';
 
 export function NotificationSettings() {
   const { isEnabled, isLoading, testNotification } = useNotifications();
+  const { theme } = useTheme();
 
   const handleTestNotification = () => {
     if (isEnabled) {
@@ -12,31 +15,69 @@ export function NotificationSettings() {
     }
   };
 
+  const getContainerStyle = () => ({
+    padding: theme.space[4],
+  });
+
+  const getStatusContainerStyle = () => ({
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    marginBottom: theme.space[4],
+  });
+
+  const getStatusLabelStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors.text,
+    marginRight: theme.space[2],
+  });
+
+  const getStatusValueStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    fontWeight: theme.fonts.roles.body.weight,
+    color: isEnabled ? theme.colors.semantic.success : theme.colors.semantic.error,
+  });
+
+  const getLoadingTextStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+  });
+
+  const getHelpTextStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+    textAlign: 'center' as const,
+  });
+
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.statusText}>Setting up notifications...</Text>
+      <View style={getContainerStyle()}>
+        <Text style={getLoadingTextStyle()}>Setting up notifications...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.statusContainer}>
-        <Text style={styles.statusLabel}>Notifications:</Text>
-        <Text style={[styles.statusValue, { color: isEnabled ? '#34C759' : '#FF3B30' }]}>
+    <View style={getContainerStyle()}>
+      <View style={getStatusContainerStyle()}>
+        <Text style={getStatusLabelStyle()}>Notifications:</Text>
+        <Text style={getStatusValueStyle()}>
           {isEnabled ? 'Enabled' : 'Disabled'}
         </Text>
       </View>
       
       {isEnabled && (
-        <TouchableOpacity style={styles.testButton} onPress={handleTestNotification}>
-          <Text style={styles.testButtonText}>Test Notification</Text>
-        </TouchableOpacity>
+        <Button
+          title="Test Notification"
+          onPress={handleTestNotification}
+          variant="secondary"
+          size="md"
+        />
       )}
       
       {!isEnabled && (
-        <Text style={styles.helpText}>
+        <Text style={getHelpTextStyle()}>
           Enable notifications in your device settings to receive updates from friends
         </Text>
       )}
@@ -44,54 +85,4 @@ export function NotificationSettings() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  statusLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-  },
-  statusValue: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  testButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-    alignSelf: 'flex-start',
-  },
-  testButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  helpText: {
-    fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic',
-    textAlign: 'center',
-  },
-  statusText: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-  },
-});
+// Styles are now handled by theme system

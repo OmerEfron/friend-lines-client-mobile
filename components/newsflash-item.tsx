@@ -2,10 +2,11 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
 } from 'react-native';
 import { NewsflashWithAuthor } from '../services';
+import { useTheme } from '../contexts/theme-context';
+import { Card } from './ui/card';
 
 interface NewsflashItemProps {
   newsflash: NewsflashWithAuthor;
@@ -13,6 +14,8 @@ interface NewsflashItemProps {
 }
 
 export function NewsflashItem({ newsflash, onPress }: NewsflashItemProps) {
+  const { theme } = useTheme();
+
   // Debug logging to see the actual structure
   console.log('📰 [NewsflashItem] Rendering newsflash:', {
     id: newsflash._id,
@@ -40,80 +43,73 @@ export function NewsflashItem({ newsflash, onPress }: NewsflashItemProps) {
   const authorName = newsflash.author?.fullName || newsflash.author?.username || 'Unknown User';
   const username = newsflash.author?.username ? `@${newsflash.author.username}` : '';
 
+  const getHeaderStyle = () => ({
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'flex-start' as const,
+    marginBottom: theme.space[3],
+  });
+
+  const getAuthorInfoStyle = () => ({
+    flex: 1,
+  });
+
+  const getAuthorNameStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    fontWeight: theme.fonts.roles.body.weight,
+    color: theme.colors.text,
+    marginBottom: theme.space[1],
+  });
+
+  const getUsernameStyle = () => ({
+    fontSize: theme.fonts.roles.caption.size,
+    color: theme.colors['text-muted'],
+  });
+
+  const getTimestampStyle = () => ({
+    fontSize: theme.fonts.roles.meta.size,
+    color: theme.colors['text-muted'],
+  });
+
+  const getContentStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors.text,
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+    marginBottom: theme.space[3],
+  });
+
+  const getFooterStyle = () => ({
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
+  });
+
+  const getTargetInfoStyle = () => ({
+    fontSize: theme.fonts.roles.meta.size,
+    color: theme.colors['text-muted'],
+  });
+
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.header}>
-        <View style={styles.authorInfo}>
-          <Text style={styles.authorName}>{authorName}</Text>
-          {username && <Text style={styles.username}>{username}</Text>}
+    <Card onPress={onPress} elevation={1}>
+      <View style={getHeaderStyle()}>
+        <View style={getAuthorInfoStyle()}>
+          <Text style={getAuthorNameStyle()}>{authorName}</Text>
+          {username && <Text style={getUsernameStyle()}>{username}</Text>}
         </View>
-        <Text style={styles.timestamp}>
+        <Text style={getTimestampStyle()}>
           {formatDate(newsflash.createdAt)}
         </Text>
       </View>
       
-      <Text style={styles.content}>{newsflash.content}</Text>
+      <Text style={getContentStyle()}>{newsflash.content}</Text>
       
-      <View style={styles.footer}>
-        <Text style={styles.targetInfo}>
+      <View style={getFooterStyle()}>
+        <Text style={getTargetInfoStyle()}>
           {newsflash.targetType === 'friends' ? '👥 Friends' : '🏷️ Group'}
         </Text>
       </View>
-    </TouchableOpacity>
+    </Card>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  authorInfo: {
-    flex: 1,
-  },
-  authorName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 2,
-  },
-  username: {
-    fontSize: 14,
-    color: '#666',
-  },
-  timestamp: {
-    fontSize: 12,
-    color: '#999',
-  },
-  content: {
-    fontSize: 16,
-    color: '#333',
-    lineHeight: 22,
-    marginBottom: 12,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  targetInfo: {
-    fontSize: 12,
-    color: '#666',
-  },
-});
+// Styles are now handled by theme system

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCreateNewsflash } from '../hooks/use-create-newsflash';
 import { useGroups } from '../hooks/use-groups';
@@ -8,7 +8,8 @@ import { CreateNewsflashForm } from '../components/create-newsflash-form';
 import { CreateNewsflashError } from '../components/create-newsflash-error';
 import { GroupSelectionModal } from '../components/group-selection-modal';
 import { Group } from '../services/groups-api';
-import { sharedStyles } from '../styles/shared';
+import { useTheme } from '../contexts/theme-context';
+import { TopBar } from '../components/top-bar';
 
 export function CreateNewsflashScreen({ navigation, route }: any) {
   const [content, setContent] = useState('');
@@ -17,6 +18,7 @@ export function CreateNewsflashScreen({ navigation, route }: any) {
   const [showGroupModal, setShowGroupModal] = useState(false);
   const { createNewsflash, isLoading, error } = useCreateNewsflash();
   const { groups } = useGroups();
+  const { theme } = useTheme();
 
   const handleCreate = async () => {
     if (!content.trim()) {
@@ -68,8 +70,40 @@ export function CreateNewsflashScreen({ navigation, route }: any) {
     setShowGroupModal(false);
   };
 
+  const handleSearch = () => {
+    // Navigate to search screen
+    console.log('Search pressed');
+  };
+
+  const handleInbox = () => {
+    // Navigate to inbox
+    console.log('Inbox pressed');
+  };
+
+  const handleLogo = () => {
+    // Navigate to home
+    console.log('Logo pressed');
+  };
+
+  const getContainerStyle = () => ({
+    flex: 1,
+    backgroundColor: theme.colors.bg,
+  });
+
+  const getContentStyle = () => ({
+    flex: 1,
+    backgroundColor: theme.colors.surface,
+  });
+
   return (
-    <SafeAreaView style={sharedStyles.container}>
+    <SafeAreaView style={getContainerStyle()}>
+      <TopBar
+        title="Create Post"
+        onPressLogo={handleLogo}
+        onPressSearch={handleSearch}
+        onPressInbox={handleInbox}
+      />
+      
       <CreateNewsflashHeader
         isLoading={isLoading}
         hasContent={content.trim().length > 0}
@@ -77,7 +111,7 @@ export function CreateNewsflashScreen({ navigation, route }: any) {
         onCreate={handleCreate}
       />
 
-      <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView style={getContentStyle()} keyboardShouldPersistTaps="handled">
         {error && <CreateNewsflashError error={error} />}
         <CreateNewsflashForm
           content={content}
@@ -100,9 +134,4 @@ export function CreateNewsflashScreen({ navigation, route }: any) {
   );
 }
 
-const styles = StyleSheet.create({
-  content: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-});
+// Styles are now handled by theme system

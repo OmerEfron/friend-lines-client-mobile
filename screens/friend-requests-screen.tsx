@@ -2,7 +2,6 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   RefreshControl,
   ActivityIndicator,
@@ -10,10 +9,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFriendRequests } from '../hooks/use-friend-requests';
 import { FriendRequestItem } from '../components/friend-request-item';
-import { sharedStyles } from '../styles/shared';
+import { useTheme } from '../contexts/theme-context';
+import { TopBar } from '../components/top-bar';
 
 export function FriendRequestsScreen() {
   const { requests, isLoading, error, hasMore, refresh, loadMore } = useFriendRequests();
+  const { theme } = useTheme();
 
   const renderRequest = ({ item }: { item: any }) => (
     <FriendRequestItem 
@@ -27,49 +28,137 @@ export function FriendRequestsScreen() {
     if (!hasMore) return null;
     
     return (
-      <View style={styles.footer}>
-        <ActivityIndicator size="small" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading more...</Text>
+      <View style={getFooterStyle()}>
+        <ActivityIndicator size="small" color={theme.colors.brand.primary} />
+        <Text style={getLoadingTextStyle()}>Loading more...</Text>
       </View>
     );
   };
 
   const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>No pending requests</Text>
-      <Text style={styles.emptySubtitle}>
+    <View style={getEmptyStyle()}>
+      <Text style={getEmptyTitleStyle()}>You're all caught up</Text>
+      <Text style={getEmptySubtitleStyle()}>
         When someone sends you a friend request, it will appear here
       </Text>
     </View>
   );
 
+  const handleSearch = () => {
+    // Navigate to search screen
+    console.log('Search pressed');
+  };
+
+  const handleInbox = () => {
+    // Already in inbox
+    console.log('Already in inbox');
+  };
+
+  const handleLogo = () => {
+    // Navigate to home
+    console.log('Logo pressed');
+  };
+
+  const getContainerStyle = () => ({
+    flex: 1,
+    backgroundColor: theme.colors.bg,
+  });
+
+  const getListStyle = () => ({
+    padding: theme.space[4],
+  });
+
+  const getFooterStyle = () => ({
+    flexDirection: 'row' as const,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    padding: theme.space[4],
+  });
+
+  const getLoadingTextStyle = () => ({
+    marginLeft: theme.space[2],
+    fontSize: theme.fonts.roles.caption.size,
+    color: theme.colors['text-muted'],
+  });
+
+  const getEmptyStyle = () => ({
+    alignItems: 'center' as const,
+    padding: theme.space[8],
+  });
+
+  const getEmptyTitleStyle = () => ({
+    fontSize: theme.fonts.roles.title.size,
+    fontWeight: theme.fonts.roles.title.weight,
+    color: theme.colors.text,
+    marginBottom: theme.space[2],
+  });
+
+  const getEmptySubtitleStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+  });
+
+  const getErrorStyle = () => ({
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    padding: theme.space[8],
+  });
+
+  const getErrorTitleStyle = () => ({
+    fontSize: theme.fonts.roles.title.size,
+    fontWeight: theme.fonts.roles.title.weight,
+    color: theme.colors.semantic.error,
+    marginBottom: theme.space[2],
+  });
+
+  const getErrorMessageStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+  });
+
   if (error) {
     return (
-      <SafeAreaView style={sharedStyles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Something went wrong</Text>
-          <Text style={styles.errorMessage}>{error}</Text>
+      <SafeAreaView style={getContainerStyle()}>
+        <TopBar
+          title="Inbox"
+          onPressLogo={handleLogo}
+          onPressSearch={handleSearch}
+          onPressInbox={handleInbox}
+        />
+        <View style={getErrorStyle()}>
+          <Text style={getErrorTitleStyle()}>Something went wrong</Text>
+          <Text style={getErrorMessageStyle()}>{error}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={sharedStyles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Friend Requests</Text>
-        <Text style={styles.subtitle}>
-          {requests.length} pending {requests.length === 1 ? 'request' : 'requests'}
-        </Text>
-      </View>
+    <SafeAreaView style={getContainerStyle()}>
+      <TopBar
+        title="Inbox"
+        onPressLogo={handleLogo}
+        onPressSearch={handleSearch}
+        onPressInbox={handleInbox}
+        badgeCount={requests.length}
+      />
 
       <FlatList
         data={requests}
         renderItem={renderRequest}
         keyExtractor={(item) => item._id}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={getListStyle()}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refresh} />
+          <RefreshControl 
+            refreshing={isLoading} 
+            onRefresh={refresh}
+            tintColor={theme.colors.brand.primary}
+          />
         }
         onEndReached={loadMore}
         onEndReachedThreshold={0.1}
@@ -81,69 +170,4 @@ export function FriendRequestsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-  },
-  listContainer: {
-    padding: 16,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  loadingText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#666',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  errorTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FF3B30',
-    marginBottom: 8,
-  },
-  errorMessage: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-});
+// Styles are now handled by theme system

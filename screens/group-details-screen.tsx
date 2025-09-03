@@ -1,14 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGroupFeed } from '../hooks/use-group-feed';
 import { NewsflashItem } from '../components/newsflash-item';
 import { NewsflashWithAuthor } from '../services/newsflashes-api';
-import { sharedStyles } from '../styles/shared';
+import { useTheme } from '../contexts/theme-context';
+import { TopBar } from '../components/top-bar';
 
 export function GroupDetailsScreen({ route, navigation }: any) {
   const { group } = route.params;
   const { newsflashes, isLoading, error, hasMore, refresh, loadMore } = useGroupFeed(group._id);
+  const { theme } = useTheme();
 
   const renderNewsflash = ({ item }: { item: NewsflashWithAuthor }) => (
     <NewsflashItem 
@@ -21,40 +23,152 @@ export function GroupDetailsScreen({ route, navigation }: any) {
     if (!hasMore) return null;
     
     return (
-      <View style={styles.footer}>
-        <ActivityIndicator size="small" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading more...</Text>
+      <View style={getFooterStyle()}>
+        <ActivityIndicator size="small" color={theme.colors.brand.primary} />
+        <Text style={getLoadingTextStyle()}>Loading more...</Text>
       </View>
     );
   };
 
   const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>No newsflashes yet</Text>
-      <Text style={styles.emptySubtitle}>
+    <View style={getEmptyStyle()}>
+      <Text style={getEmptyTitleStyle()}>No newsflashes yet</Text>
+      <Text style={getEmptySubtitleStyle()}>
         Be the first to share something in this group!
       </Text>
     </View>
   );
 
+  const handleSearch = () => {
+    console.log('Search pressed');
+  };
+
+  const handleInbox = () => {
+    console.log('Inbox pressed');
+  };
+
+  const handleLogo = () => {
+    navigation.goBack();
+  };
+
+  const getContainerStyle = () => ({
+    flex: 1,
+    backgroundColor: theme.colors.bg,
+  });
+
+  const getHeaderStyle = () => ({
+    padding: theme.space[5],
+    backgroundColor: theme.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.divider,
+  });
+
+  const getTitleStyle = () => ({
+    fontSize: theme.fonts.roles.headline.size,
+    fontWeight: theme.fonts.roles.headline.weight,
+    color: theme.colors.text,
+    marginBottom: theme.space[1],
+  });
+
+  const getMemberCountStyle = () => ({
+    fontSize: theme.fonts.roles.caption.size,
+    color: theme.colors['text-muted'],
+    marginBottom: theme.space[2],
+  });
+
+  const getDescriptionStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors.text,
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+  });
+
+  const getListStyle = () => ({
+    padding: theme.space[4],
+    paddingBottom: theme.space[8],
+  });
+
+  const getFooterStyle = () => ({
+    flexDirection: 'row' as const,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    padding: theme.space[4],
+  });
+
+  const getLoadingTextStyle = () => ({
+    marginLeft: theme.space[2],
+    fontSize: theme.fonts.roles.caption.size,
+    color: theme.colors['text-muted'],
+  });
+
+  const getEmptyStyle = () => ({
+    alignItems: 'center' as const,
+    padding: theme.space[8],
+  });
+
+  const getEmptyTitleStyle = () => ({
+    fontSize: theme.fonts.roles.title.size,
+    fontWeight: theme.fonts.roles.title.weight,
+    color: theme.colors.text,
+    marginBottom: theme.space[2],
+  });
+
+  const getEmptySubtitleStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+  });
+
+  const getErrorStyle = () => ({
+    alignItems: 'center' as const,
+    padding: theme.space[8],
+  });
+
+  const getErrorTitleStyle = () => ({
+    fontSize: theme.fonts.roles.title.size,
+    fontWeight: theme.fonts.roles.title.weight,
+    color: theme.colors.semantic.error,
+    marginBottom: theme.space[2],
+  });
+
+  const getErrorMessageStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+  });
+
   if (error) {
     return (
-      <SafeAreaView style={sharedStyles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Something went wrong</Text>
-          <Text style={styles.errorMessage}>{error}</Text>
+      <SafeAreaView style={getContainerStyle()}>
+        <TopBar
+          title={group.name}
+          onPressLogo={handleLogo}
+          onPressSearch={handleSearch}
+          onPressInbox={handleInbox}
+        />
+        <View style={getErrorStyle()}>
+          <Text style={getErrorTitleStyle()}>Something went wrong</Text>
+          <Text style={getErrorMessageStyle()}>{error}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={sharedStyles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{group.name}</Text>
-        <Text style={styles.memberCount}>{group.members.length} members</Text>
+    <SafeAreaView style={getContainerStyle()}>
+      <TopBar
+        title={group.name}
+        onPressLogo={handleLogo}
+        onPressSearch={handleSearch}
+        onPressInbox={handleInbox}
+      />
+      
+      <View style={getHeaderStyle()}>
+        <Text style={getTitleStyle()}>{group.name}</Text>
+        <Text style={getMemberCountStyle()}>{group.members.length} members</Text>
         {group.description && (
-          <Text style={styles.description}>{group.description}</Text>
+          <Text style={getDescriptionStyle()}>{group.description}</Text>
         )}
       </View>
 
@@ -62,9 +176,13 @@ export function GroupDetailsScreen({ route, navigation }: any) {
         data={newsflashes}
         renderItem={renderNewsflash}
         keyExtractor={(item) => item._id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={getListStyle()}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refresh} />
+          <RefreshControl 
+            refreshing={isLoading} 
+            onRefresh={refresh}
+            tintColor={theme.colors.brand.primary}
+          />
         }
         onEndReached={loadMore}
         onEndReachedThreshold={0.1}
@@ -76,74 +194,4 @@ export function GroupDetailsScreen({ route, navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 4,
-  },
-  memberCount: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 16,
-    color: '#333',
-    lineHeight: 22,
-  },
-  list: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  loadingText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#666',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  errorContainer: {
-    alignItems: 'center',
-    padding: 32,
-  },
-  errorTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FF3B30',
-    marginBottom: 8,
-  },
-  errorMessage: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-});
+// Styles are now handled by theme system

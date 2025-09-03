@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { Alert, ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCreateGroup } from '../hooks/use-create-group';
 import { CreateGroupForm } from '../components/create-group-form';
 import { CreateGroupRequest } from '../services/groups-api';
-import { sharedStyles } from '../styles/shared';
+import { useTheme } from '../contexts/theme-context';
+import { TopBar } from '../components/top-bar';
 
 export function CreateGroupScreen({ navigation }: any) {
   const [groupData, setGroupData] = useState<CreateGroupRequest>({
@@ -12,6 +13,7 @@ export function CreateGroupScreen({ navigation }: any) {
     description: '',
   });
   const { createGroup, isLoading, error } = useCreateGroup();
+  const { theme } = useTheme();
 
   const handleCreate = async () => {
     if (!groupData.name.trim()) {
@@ -41,30 +43,113 @@ export function CreateGroupScreen({ navigation }: any) {
 
   const canCreate = groupData.name.trim().length > 0 && !isLoading;
 
+  const handleSearch = () => {
+    console.log('Search pressed');
+  };
+
+  const handleInbox = () => {
+    console.log('Inbox pressed');
+  };
+
+  const handleLogo = () => {
+    console.log('Logo pressed');
+  };
+
+  const getContainerStyle = () => ({
+    flex: 1,
+    backgroundColor: theme.colors.bg,
+  });
+
+  const getContentStyle = () => ({
+    flex: 1,
+    backgroundColor: theme.colors.surface,
+  });
+
+  const getHeaderStyle = () => ({
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'space-between' as const,
+    padding: theme.space[4],
+    backgroundColor: theme.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.divider,
+  });
+
+  const getCancelButtonStyle = () => ({
+    padding: theme.space[2],
+  });
+
+  const getCancelTextStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors.brand.primary,
+  });
+
+  const getTitleStyle = () => ({
+    fontSize: theme.fonts.roles.subhead.size,
+    fontWeight: theme.fonts.roles.subhead.weight,
+    color: theme.colors.text,
+  });
+
+  const getCreateButtonStyle = () => ({
+    padding: theme.space[2],
+  });
+
+  const getCreateTextStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    fontWeight: theme.fonts.roles.body.weight,
+    color: theme.colors.brand.primary,
+  });
+
+  const getCreateTextDisabledStyle = () => ({
+    color: theme.colors['text-muted'],
+  });
+
+  const getErrorContainerStyle = () => ({
+    margin: theme.space[4],
+    padding: theme.space[3],
+    backgroundColor: theme.colors.semantic.error + '20',
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.semantic.error + '40',
+  });
+
+  const getErrorTextStyle = () => ({
+    fontSize: theme.fonts.roles.caption.size,
+    color: theme.colors.semantic.error,
+    textAlign: 'center' as const,
+  });
+
   return (
-    <SafeAreaView style={sharedStyles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleCancel} style={styles.cancelButton}>
-          <Text style={styles.cancelText}>Cancel</Text>
+    <SafeAreaView style={getContainerStyle()}>
+      <TopBar
+        title="Create Group"
+        onPressLogo={handleLogo}
+        onPressSearch={handleSearch}
+        onPressInbox={handleInbox}
+      />
+      
+      <View style={getHeaderStyle()}>
+        <TouchableOpacity onPress={handleCancel} style={getCancelButtonStyle()}>
+          <Text style={getCancelTextStyle()}>Cancel</Text>
         </TouchableOpacity>
         
-        <Text style={styles.title}>Create Group</Text>
+        <Text style={getTitleStyle()}>Create Group</Text>
         
         <TouchableOpacity 
           onPress={handleCreate} 
-          style={[styles.createButton, !canCreate && styles.createButtonDisabled]}
+          style={[getCreateButtonStyle(), !canCreate && { opacity: 0.5 }]}
           disabled={!canCreate}
         >
-          <Text style={[styles.createText, !canCreate && styles.createTextDisabled]}>
+          <Text style={[getCreateTextStyle(), !canCreate && getCreateTextDisabledStyle()]}>
             {isLoading ? 'Creating...' : 'Create'}
           </Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView style={getContentStyle()} keyboardShouldPersistTaps="handled">
         {error && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
+          <View style={getErrorContainerStyle()}>
+            <Text style={getErrorTextStyle()}>{error}</Text>
           </View>
         )}
         
@@ -77,57 +162,4 @@ export function CreateGroupScreen({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  cancelButton: {
-    padding: 8,
-  },
-  cancelText: {
-    fontSize: 16,
-    color: '#007AFF',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-  createButton: {
-    padding: 8,
-  },
-  createButtonDisabled: {
-    opacity: 0.5,
-  },
-  createText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#007AFF',
-  },
-  createTextDisabled: {
-    color: '#999',
-  },
-  content: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  errorContainer: {
-    margin: 16,
-    padding: 12,
-    backgroundColor: '#FFE6E6',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#FFB3B3',
-  },
-  errorText: {
-    fontSize: 14,
-    color: '#D32F2F',
-    textAlign: 'center',
-  },
-});
+// Styles are now handled by theme system

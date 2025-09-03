@@ -2,7 +2,6 @@ import React, { forwardRef, useImperativeHandle } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   RefreshControl,
   FlatList,
   ActivityIndicator,
@@ -10,6 +9,7 @@ import {
 import { NewsflashItem } from './newsflash-item';
 import { useNewsflashes } from '../hooks/use-newsflashes';
 import { NewsflashWithAuthor } from '../services';
+import { useTheme } from '../contexts/theme-context';
 
 export interface NewsfeedRef {
   refresh: () => void;
@@ -17,6 +17,7 @@ export interface NewsfeedRef {
 
 export const Newsfeed = forwardRef<NewsfeedRef>((props, ref) => {
   const { newsflashes, isLoading, error, hasMore, refresh, loadMore } = useNewsflashes();
+  const { theme } = useTheme();
 
   useImperativeHandle(ref, () => ({
     refresh
@@ -33,27 +34,83 @@ export const Newsfeed = forwardRef<NewsfeedRef>((props, ref) => {
     if (!hasMore) return null;
     
     return (
-      <View style={styles.footer}>
-        <ActivityIndicator size="small" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading more...</Text>
+      <View style={getFooterStyle()}>
+        <ActivityIndicator size="small" color={theme.colors.brand.primary} />
+        <Text style={getLoadingTextStyle()}>Loading more...</Text>
       </View>
     );
   };
 
   const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>No newsflashes yet</Text>
-      <Text style={styles.emptySubtitle}>
+    <View style={getEmptyStyle()}>
+      <Text style={getEmptyTitleStyle()}>No newsflashes yet</Text>
+      <Text style={getEmptySubtitleStyle()}>
         When your friends post newsflashes, they'll appear here
       </Text>
     </View>
   );
 
+  const getContainerStyle = () => ({
+    padding: theme.space[4],
+    paddingBottom: theme.space[8],
+  });
+
+  const getFooterStyle = () => ({
+    flexDirection: 'row' as const,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    padding: theme.space[4],
+  });
+
+  const getLoadingTextStyle = () => ({
+    marginLeft: theme.space[2],
+    fontSize: theme.fonts.roles.caption.size,
+    color: theme.colors['text-muted'],
+  });
+
+  const getEmptyStyle = () => ({
+    alignItems: 'center' as const,
+    padding: theme.space[8],
+  });
+
+  const getEmptyTitleStyle = () => ({
+    fontSize: theme.fonts.roles.title.size,
+    fontWeight: theme.fonts.roles.title.weight,
+    color: theme.colors.text,
+    marginBottom: theme.space[2],
+  });
+
+  const getEmptySubtitleStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+  });
+
+  const getErrorStyle = () => ({
+    alignItems: 'center' as const,
+    padding: theme.space[8],
+  });
+
+  const getErrorTitleStyle = () => ({
+    fontSize: theme.fonts.roles.title.size,
+    fontWeight: theme.fonts.roles.title.weight,
+    color: theme.colors.semantic.error,
+    marginBottom: theme.space[2],
+  });
+
+  const getErrorMessageStyle = () => ({
+    fontSize: theme.fonts.roles.body.size,
+    color: theme.colors['text-muted'],
+    textAlign: 'center' as const,
+    lineHeight: theme.fonts.roles.body.size * theme.fonts.roles.body.lh,
+  });
+
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorTitle}>Something went wrong</Text>
-        <Text style={styles.errorMessage}>{error}</Text>
+      <View style={getErrorStyle()}>
+        <Text style={getErrorTitleStyle()}>Something went wrong</Text>
+        <Text style={getErrorMessageStyle()}>{error}</Text>
       </View>
     );
   }
@@ -63,9 +120,13 @@ export const Newsfeed = forwardRef<NewsfeedRef>((props, ref) => {
       data={newsflashes}
       renderItem={renderNewsflash}
       keyExtractor={(item) => item._id}
-      contentContainerStyle={styles.container}
+      contentContainerStyle={getContainerStyle()}
       refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={refresh} />
+        <RefreshControl 
+          refreshing={isLoading} 
+          onRefresh={refresh}
+          tintColor={theme.colors.brand.primary}
+        />
       }
       onEndReached={loadMore}
       onEndReachedThreshold={0.1}
@@ -76,52 +137,4 @@ export const Newsfeed = forwardRef<NewsfeedRef>((props, ref) => {
   );
 });
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  loadingText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#666',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  errorContainer: {
-    alignItems: 'center',
-    padding: 32,
-  },
-  errorTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FF3B30',
-    marginBottom: 8,
-  },
-  errorMessage: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-});
+// Styles are now handled by theme system
