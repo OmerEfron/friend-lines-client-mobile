@@ -51,6 +51,11 @@ export type {
 
 // Notifications service
 export { NotificationsAPI } from './notifications-api';
+export { NotificationService } from './notification-service';
+export { NotificationPermissions } from './notification-permissions';
+export { NotificationTokens } from './notification-tokens';
+export { NotificationHandlers } from './notification-handlers';
+export { NotificationRegistration } from './notification-registration';
 export type { 
   RegisterDeviceRequest, 
   RegisterDeviceResponse 
