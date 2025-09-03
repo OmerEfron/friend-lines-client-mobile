@@ -2,7 +2,7 @@ import { BaseAPI } from './base-api';
 
 export interface RegisterDeviceRequest {
   deviceToken: string;
-  platform: 'ios' | 'android' | 'web';
+  platform?: 'ios' | 'android' | 'web';
 }
 
 export interface RegisterDeviceResponse {
@@ -15,28 +15,33 @@ export interface RegisterDeviceResponse {
 
 export class NotificationsAPI extends BaseAPI {
   static async registerDevice(
-    deviceData: RegisterDeviceRequest,
-    token: string
+    deviceData: RegisterDeviceRequest
   ): Promise<RegisterDeviceResponse> {
     console.log('📱 [NotificationsAPI] Registering device:', deviceData);
+    
+    // Prepare request body according to API specification
+    const requestBody = {
+      deviceToken: deviceData.deviceToken,
+      ...(deviceData.platform && { platform: deviceData.platform })
+    };
+    
     console.log('📤 [NotificationsAPI] Request payload being sent:', {
-      endpoint: '/notifications/register-device',
+      endpoint: '/notifications/register',
       method: 'POST',
-      body: JSON.stringify(deviceData),
-      bodyLength: JSON.stringify(deviceData).length,
+      body: JSON.stringify(requestBody),
+      bodyLength: JSON.stringify(requestBody).length,
       deviceTokenLength: deviceData.deviceToken.length,
       platform: deviceData.platform
     });
 
     return this.authenticatedRequest<RegisterDeviceResponse>(
       '/notifications/register',
-      token,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(deviceData),
+        body: JSON.stringify(requestBody),
       }
     );
   }

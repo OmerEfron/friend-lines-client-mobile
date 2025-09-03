@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FriendshipsAPI, FriendshipsListResponse } from '../services';
 import { useAuth } from '../contexts/auth-context';
 
@@ -18,13 +17,7 @@ export function useFriends() {
       setIsLoading(true);
       setError(null);
 
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        setError('Authentication token not found');
-        return;
-      }
-
-      const response = await FriendshipsAPI.getFriendsList(token, pageNum, 20);
+      const response = await FriendshipsAPI.getFriendsList(pageNum, 20);
 
       if (response.success && response.data) {
         const newFriends = response.data.friends;

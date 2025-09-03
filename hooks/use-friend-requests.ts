@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FriendshipsAPI, PendingRequestsResponse } from '../services';
 import { useAuth } from '../contexts/auth-context';
 
@@ -18,13 +17,7 @@ export function useFriendRequests() {
       setIsLoading(true);
       setError(null);
 
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        setError('Authentication token not found');
-        return;
-      }
-
-      const response = await FriendshipsAPI.getPendingRequests(token, pageNum, 20);
+      const response = await FriendshipsAPI.getPendingRequests(pageNum, 20);
 
       if (response.success && response.data) {
         const newRequests = response.data.requests;

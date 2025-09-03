@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UsersAPI, SearchUsersResponse } from '../services';
 
 export function useUserSearch() {
@@ -14,15 +13,8 @@ export function useUserSearch() {
       setIsLoading(true);
       setError(null);
 
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        setError('Authentication token not found');
-        return;
-      }
-
       const response = await UsersAPI.searchUsers(
-        { q: query, page: 1, limit: 50 },
-        token
+        { q: query, page: 1, limit: 50 }
       );
 
       if (response.success && response.data) {

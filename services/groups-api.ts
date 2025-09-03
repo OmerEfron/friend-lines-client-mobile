@@ -48,14 +48,12 @@ export interface SuccessResponse {
 
 export class GroupsAPI extends BaseAPI {
   static async createGroup(
-    groupData: CreateGroupRequest,
-    token: string
+    groupData: CreateGroupRequest
   ): Promise<CreateGroupResponse> {
     console.log('🏗️ [GroupsAPI] Creating group:', groupData);
 
     return this.authenticatedRequest<CreateGroupResponse>(
       '/groups/create',
-      token,
       {
         method: 'POST',
         body: JSON.stringify(groupData),
@@ -64,14 +62,12 @@ export class GroupsAPI extends BaseAPI {
   }
 
   static async inviteUserToGroup(
-    inviteData: InviteUserToGroupRequest,
-    token: string
+    inviteData: InviteUserToGroupRequest
   ): Promise<SuccessResponse> {
     console.log('📨 [GroupsAPI] Inviting user to group:', inviteData);
 
     return this.authenticatedRequest<SuccessResponse>(
       '/groups/invite',
-      token,
       {
         method: 'POST',
         body: JSON.stringify(inviteData),
@@ -80,7 +76,6 @@ export class GroupsAPI extends BaseAPI {
   }
 
   static async getMyGroups(
-    token: string,
     page: number = 1,
     limit: number = 20
   ): Promise<MyGroupsResponse> {
@@ -93,7 +88,6 @@ export class GroupsAPI extends BaseAPI {
 
     return this.authenticatedRequest<MyGroupsResponse>(
       `/groups/my-groups?${params.toString()}`,
-      token,
       { method: 'GET' }
     );
   }

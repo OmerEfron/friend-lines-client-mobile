@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NotificationService } from '../services/notification-service';
 import { useAuth } from '../contexts/auth-context';
 
@@ -35,10 +34,7 @@ export function useNotifications() {
       setIsEnabled(true);
       
       // Register with server
-      const authToken = await AsyncStorage.getItem('token');
-      if (authToken) {
-        await notificationService.registerDeviceWithServer(token, authToken);
-      }
+      await notificationService.registerDeviceWithServer(token);
       
       console.log('✅ [useNotifications] Notifications setup complete');
     } catch (error) {

@@ -3,7 +3,10 @@ export { BaseAPI } from './base-api';
 
 // Authentication service
 export { AuthAPI } from './auth-api';
-export type { LoginCredentials, AuthResponse } from './auth-api';
+export type { LoginCredentials, AuthResponse, RefreshResponse } from './auth-api';
+
+// Token management
+export { TokenManager } from './token-manager';
 
 // Users service
 export { UsersAPI } from './users-api';

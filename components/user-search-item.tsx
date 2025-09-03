@@ -27,17 +27,9 @@ export function UserSearchItem({ user }: UserSearchItemProps) {
 
     try {
       setIsLoading(true);
-      const token = await import('@react-native-async-storage/async-storage')
-        .then(AsyncStorage => AsyncStorage.default.getItem('token'));
-
-      if (!token) {
-        Alert.alert('Error', 'Authentication token not found');
-        return;
-      }
 
       await FriendshipsAPI.sendFriendRequest(
-        { friendId: user.uuid },
-        token
+        { friendId: user.uuid }
       );
 
       Alert.alert('Success', 'Friend request sent successfully!');

@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NewsflashesAPI, CreateNewsflashRequest } from '../services';
 
 export function useCreateNewsflash() {
@@ -10,13 +9,8 @@ export function useCreateNewsflash() {
     try {
       setIsLoading(true);
       setError(null);
-      
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        throw new Error('Authentication token not found');
-      }
 
-      const response = await NewsflashesAPI.createNewsflash(newsflashData, token);
+      const response = await NewsflashesAPI.createNewsflash(newsflashData);
       
       if (!response.success) {
         throw new Error('Failed to create newsflash');

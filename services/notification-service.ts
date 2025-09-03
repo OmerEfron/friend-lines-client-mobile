@@ -109,14 +109,20 @@ export class NotificationService {
     }
   }
 
-  async registerDeviceWithServer(deviceToken: string, authToken: string): Promise<boolean> {
+  async registerDeviceWithServer(deviceToken: string): Promise<boolean> {
     try {
       console.log('📡 [NotificationService] Registering device with Friend Lines API...');
       
+      // Determine platform based on Device.osName
+      const platform = Device.osName === 'Android' ? 'android' : 
+                      Device.osName === 'iOS' ? 'ios' : 'web';
+      
+      console.log('📱 [NotificationService] Detected platform:', platform);
+      
       const response = await NotificationsAPI.registerDevice({
         deviceToken,
-        platform: Device.osInternalBuildId ? 'android' : 'ios'
-      }, authToken);
+        platform
+      });
 
       if (response.success) {
         console.log('✅ [NotificationService] Device registered successfully with API');

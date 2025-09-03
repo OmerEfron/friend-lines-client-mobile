@@ -50,14 +50,12 @@ export interface MyFeedResponse {
 
 export class NewsflashesAPI extends BaseAPI {
   static async createNewsflash(
-    newsflashData: CreateNewsflashRequest,
-    token: string
+    newsflashData: CreateNewsflashRequest
   ): Promise<CreateNewsflashResponse> {
     console.log('📢 [NewsflashesAPI] Creating newsflash:', newsflashData);
 
     return this.authenticatedRequest<CreateNewsflashResponse>(
       '/newsflashes/create',
-      token,
       {
         method: 'POST',
         body: JSON.stringify(newsflashData),
@@ -66,7 +64,6 @@ export class NewsflashesAPI extends BaseAPI {
   }
 
   static async getMyFeed(
-    token: string,
     page: number = 1,
     limit: number = 20
   ): Promise<MyFeedResponse> {
@@ -79,7 +76,6 @@ export class NewsflashesAPI extends BaseAPI {
 
     return this.authenticatedRequest<MyFeedResponse>(
       `/newsflashes/my-feed?${params.toString()}`,
-      token,
       { method: 'GET' }
     );
   }

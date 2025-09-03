@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContextType, User, LoginCredentials, RegisterCredentials } from '../types/auth';
 import { AuthAPI, UsersAPI } from '../services';
+import { TokenManager } from '../services/token-manager';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -16,16 +16,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function loadStoredUser() {
     try {
-      const storedUser = await AsyncStorage.getItem('user');
-      const storedToken = await AsyncStorage.getItem('token');
+      const storedUser = await TokenManager.getUser();
+      const storedToken = await TokenManager.getAccessToken();
       
       console.log('💾 [AuthContext] Stored user:', storedUser ? 'exists' : 'none');
       console.log('💾 [AuthContext] Stored token:', storedToken ? 'exists' : 'none');
       
       if (storedUser && storedToken) {
-        const userData = JSON.parse(storedUser);
-        console.log('👤 [AuthContext] Setting user from storage:', userData.fullName || userData.username);
-        setUser(userData);
+        console.log('👤 [AuthContext] Setting user from storage:', storedUser.fullName || storedUser.username);
+        setUser(storedUser);
       }
     } catch (error) {
       console.error('💥 [AuthContext] Error loading stored user:', error);
@@ -59,14 +58,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
       
       setUser(userData);
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
-      await AsyncStorage.setItem('token', response.data.token);
-      console.log('💾 [AuthContext] User data saved to storage');
-      console.log('🔑 [AuthContext] Token saved:', response.data.token ? 'exists' : 'missing');
-      
-      // Verify token was saved
-      const savedToken = await AsyncStorage.getItem('token');
-      console.log('🔍 [AuthContext] Token verification:', savedToken ? 'saved successfully' : 'failed to save');
+      await TokenManager.setUser(userData);
+      await TokenManager.setAccessToken(response.data.accessToken);
+      console.log('💾 [AuthContext] User data and access token saved to storage');
+      console.log('🔑 [AuthContext] Access token saved:', response.data.accessToken ? 'exists' : 'missing');
     } catch (error) {
       console.error('💥 [AuthContext] Login failed:', error);
       throw error;
@@ -105,14 +100,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
       
       setUser(userData);
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
-      await AsyncStorage.setItem('token', loginResponse.data.token);
-      console.log('💾 [AuthContext] User data and token saved to storage');
-      console.log('🔑 [AuthContext] Token saved:', loginResponse.data.token ? 'exists' : 'missing');
-      
-      // Verify token was saved
-      const savedToken = await AsyncStorage.getItem('token');
-      console.log('🔍 [AuthContext] Token verification:', savedToken ? 'saved successfully' : 'failed to save');
+      await TokenManager.setUser(userData);
+      await TokenManager.setAccessToken(loginResponse.data.accessToken);
+      console.log('💾 [AuthContext] User data and access token saved to storage');
+      console.log('🔑 [AuthContext] Access token saved:', loginResponse.data.accessToken ? 'exists' : 'missing');
     } catch (error) {
       console.error('💥 [AuthContext] Register failed:', error);
       throw error;
@@ -121,9 +112,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function logout() {
     console.log('🚪 [AuthContext] Logout function called');
+    try {
+      // Call the server logout endpoint to clear the refresh token cookie
+      await AuthAPI.logout();
+    } catch (error) {
+      console.error('💥 [AuthContext] Server logout failed:', error);
+      // Continue with local logout even if server call fails
+    }
+    
     setUser(null);
-    await AsyncStorage.removeItem('user');
-    await AsyncStorage.removeItem('token');
+    await TokenManager.clearTokens();
     console.log('💾 [AuthContext] User data cleared from storage');
   }
 

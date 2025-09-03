@@ -60,8 +60,7 @@ export class UsersAPI extends BaseAPI {
   }
 
   static async searchUsers(
-    searchData: SearchUsersRequest,
-    token: string
+    searchData: SearchUsersRequest
   ): Promise<SearchUsersResponse> {
     console.log('🔍 [UsersAPI] Searching users:', searchData);
 
@@ -73,7 +72,6 @@ export class UsersAPI extends BaseAPI {
 
     return this.authenticatedRequest<SearchUsersResponse>(
       `/users/search?${params.toString()}`,
-      token,
       { method: 'GET' }
     );
   }

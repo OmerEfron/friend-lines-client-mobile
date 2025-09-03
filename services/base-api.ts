@@ -52,9 +52,16 @@ export class BaseAPI {
 
   protected static async authenticatedRequest<T>(
     endpoint: string,
-    token: string,
     options: RequestInit = {}
   ): Promise<T> {
+    // Lazy import to avoid circular dependency
+    const { TokenManager } = await import('./token-manager');
+    const token = await TokenManager.getValidToken();
+    
+    if (!token) {
+      throw new Error('No valid access token available');
+    }
+
     return this.request<T>(endpoint, {
       ...options,
       headers: {

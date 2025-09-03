@@ -68,14 +68,12 @@ export interface SuccessResponse {
 
 export class FriendshipsAPI extends BaseAPI {
   static async sendFriendRequest(
-    requestData: SendFriendRequestRequest,
-    token: string
+    requestData: SendFriendRequestRequest
   ): Promise<SuccessResponse> {
     console.log('🤝 [FriendshipsAPI] Sending friend request:', requestData);
 
     return this.authenticatedRequest<SuccessResponse>(
       '/friendships/request',
-      token,
       {
         method: 'POST',
         body: JSON.stringify(requestData),
@@ -84,14 +82,12 @@ export class FriendshipsAPI extends BaseAPI {
   }
 
   static async acceptFriendRequest(
-    requestData: AcceptFriendRequestRequest,
-    token: string
+    requestData: AcceptFriendRequestRequest
   ): Promise<SuccessResponse> {
     console.log('✅ [FriendshipsAPI] Accepting friend request:', requestData);
 
     return this.authenticatedRequest<SuccessResponse>(
       '/friendships/accept',
-      token,
       {
         method: 'POST',
         body: JSON.stringify(requestData),
@@ -100,7 +96,6 @@ export class FriendshipsAPI extends BaseAPI {
   }
 
   static async getFriendsList(
-    token: string,
     page: number = 1,
     limit: number = 20
   ): Promise<FriendshipsListResponse> {
@@ -113,13 +108,11 @@ export class FriendshipsAPI extends BaseAPI {
 
     return this.authenticatedRequest<FriendshipsListResponse>(
       `/friendships/list?${params.toString()}`,
-      token,
       { method: 'GET' }
     );
   }
 
   static async getPendingRequests(
-    token: string,
     page: number = 1,
     limit: number = 20
   ): Promise<PendingRequestsResponse> {
@@ -132,7 +125,6 @@ export class FriendshipsAPI extends BaseAPI {
 
     return this.authenticatedRequest<PendingRequestsResponse>(
       `/friendships/requests?${params.toString()}`,
-      token,
       { method: 'GET' }
     );
   }

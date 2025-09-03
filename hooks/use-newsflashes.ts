@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NewsflashesAPI, MyFeedResponse } from '../services';
 import { useAuth } from '../contexts/auth-context';
 
@@ -21,21 +20,8 @@ export function useNewsflashes() {
       setIsLoading(true);
       setError(null);
       
-      // Get token from AsyncStorage
-      const token = await AsyncStorage.getItem('token');
-      console.log('🔑 [useNewsflashes] Token retrieved:', token ? 'exists' : 'missing');
-      
-      if (!token || token === 'registration-complete' || token.trim() === '') {
-        setError('No valid authentication token found. Please login again.');
-        setIsLoading(false);
-        return;
-      }
-      
-      console.log('🔑 [useNewsflashes] Token length:', token.length);
-      console.log('🔑 [useNewsflashes] Token starts with:', token.substring(0, 20) + '...');
-      
       console.log('🌐 [useNewsflashes] Fetching newsflashes for page:', pageNum);
-      const response = await NewsflashesAPI.getMyFeed(token, pageNum, 20);
+      const response = await NewsflashesAPI.getMyFeed(pageNum, 20);
       
       if (response.success && response.data) {
         const newNewsflashes = response.data.newsflashes;

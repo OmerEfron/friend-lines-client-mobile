@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FriendshipsAPI, PendingRequestsResponse } from '../services';
 
 type FriendRequest = PendingRequestsResponse['data']['requests'][0];
@@ -23,12 +22,6 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
   const handleAccept = async () => {
     try {
       setIsLoading(true);
-      const token = await AsyncStorage.getItem('token');
-      
-      if (!token) {
-        Alert.alert('Error', 'Authentication token not found');
-        return;
-      }
 
       // Use the user UUID from the request object
       // According to the API docs, the /friendships/accept endpoint expects the UUID of the user who sent the friend request
@@ -45,8 +38,7 @@ export function FriendRequestItem({ request, onAccept, onReject }: FriendRequest
       });
 
       await FriendshipsAPI.acceptFriendRequest(
-        { friendId }, // Send the user UUID as the API expects
-        token
+        { friendId } // Send the user UUID as the API expects
       );
 
       Alert.alert('Success', 'Friend request accepted!');
