@@ -1,5 +1,6 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { useFriends } from '../hooks/use-friends';
 import { useAuth } from '../contexts/auth-context';
 import { FriendsScreenHeader } from '../components/friends-screen-header';
@@ -10,6 +11,11 @@ import { sharedStyles } from '../styles/shared';
 export function FriendsScreen() {
   const { friends, isLoading, error, hasMore, refresh, loadMore } = useFriends();
   const { logout } = useAuth();
+  const navigation = useNavigation();
+
+  const handleFriendPress = (friend: any) => {
+    navigation.navigate('UserProfile', { userId: friend.uuid });
+  };
 
   if (error) {
     return <FriendsScreenError error={error} />;
@@ -24,6 +30,7 @@ export function FriendsScreen() {
         hasMore={hasMore}
         onRefresh={refresh}
         onLoadMore={loadMore}
+        onFriendPress={handleFriendPress}
       />
     </SafeAreaView>
   );

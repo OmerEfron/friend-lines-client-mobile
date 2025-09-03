@@ -6,6 +6,10 @@ import { LoginScreen } from '../screens/login-screen';
 import { RegisterScreen } from '../screens/register-screen';
 import { TabNavigator } from './tab-navigator';
 import { CreateNewsflashScreen } from '../screens/create-newsflash-screen';
+import { GroupsListScreen } from '../screens/groups-list-screen';
+import { CreateGroupScreen } from '../screens/create-group-screen';
+import { GroupDetailsScreen } from '../screens/group-details-screen';
+import { UserProfileScreen } from '../screens/user-profile-screen';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 
 const Stack = createStackNavigator();
@@ -32,6 +36,24 @@ function AppStack() {
     >
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen name="CreateNewsflash" component={CreateNewsflashScreen} />
+      <Stack.Screen name="GroupsList" component={GroupsListScreen} />
+      <Stack.Screen name="CreateGroup" component={CreateGroupScreen} />
+      <Stack.Screen name="GroupDetails" component={GroupDetailsScreen} />
+      <Stack.Screen 
+        name="UserProfile" 
+        component={UserProfileScreen}
+        options={{
+          title: 'Profile',
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#007AFF',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: '600',
+          },
+        }}
+      />
     </Stack.Navigator>
   );
 }

@@ -5,6 +5,8 @@ import { HomeScreen } from '../screens/home-screen';
 import { UserSearchScreen } from '../screens/user-search-screen';
 import { FriendsScreen } from '../screens/friends-screen';
 import { FriendRequestsScreen } from '../screens/friend-requests-screen';
+import { GroupsListScreen } from '../screens/groups-list-screen';
+import { UserProfileScreen } from '../screens/user-profile-screen';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,6 +25,10 @@ export function TabNavigator() {
             iconName = focused ? 'people' : 'people-outline';
           } else if (route.name === 'Requests') {
             iconName = focused ? 'mail' : 'mail-outline';
+          } else if (route.name === 'Groups') {
+            iconName = focused ? 'people-circle' : 'people-circle-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
           } else {
             iconName = 'help-outline';
           }
@@ -53,6 +59,16 @@ export function TabNavigator() {
         name="Requests" 
         component={FriendRequestsScreen}
         options={{ title: 'Requests' }}
+      />
+      <Tab.Screen 
+        name="Groups" 
+        component={GroupsListScreen}
+        options={{ title: 'Groups' }}
+      />
+      <Tab.Screen 
+        name="Profile" 
+        component={UserProfileScreen}
+        options={{ title: 'My Profile' }}
       />
     </Tab.Navigator>
   );

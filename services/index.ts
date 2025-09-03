@@ -34,9 +34,9 @@ export { GroupsAPI } from './groups-api';
 export type { 
   Group, 
   CreateGroupRequest, 
-  InviteUserToGroupRequest, 
   CreateGroupResponse, 
-  MyGroupsResponse 
+  GroupsListResponse,
+  InviteToGroupRequest
 } from './groups-api';
 
 // Newsflashes service
@@ -48,6 +48,9 @@ export type {
   CreateNewsflashResponse, 
   MyFeedResponse 
 } from './newsflashes-api';
+
+// Profile service
+export { ProfileAPI } from './profile-api';
 
 // Notifications service
 export { NotificationsAPI } from './notifications-api';

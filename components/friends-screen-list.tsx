@@ -15,6 +15,7 @@ interface FriendsScreenListProps {
   hasMore: boolean;
   onRefresh: () => void;
   onLoadMore: () => void;
+  onFriendPress?: (friend: any) => void;
 }
 
 export function FriendsScreenList({
@@ -23,9 +24,13 @@ export function FriendsScreenList({
   hasMore,
   onRefresh,
   onLoadMore,
+  onFriendPress,
 }: FriendsScreenListProps) {
   const renderFriend = ({ item }: { item: any }) => (
-    <FriendItem friend={item} />
+    <FriendItem 
+      friend={item} 
+      onPress={() => onFriendPress?.(item)}
+    />
   );
 
   const renderFooter = () => {

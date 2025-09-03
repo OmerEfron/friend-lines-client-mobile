@@ -3,8 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/auth-context';
 import { sharedStyles } from '../styles/shared';
 import { Newsfeed, NewsfeedRef } from '../components/newsfeed';
@@ -25,6 +27,10 @@ export function HomeScreen({ navigation }: any) {
     });
   };
 
+  const handleProfilePress = () => {
+    navigation.navigate('Profile');
+  };
+
   return (
     <SafeAreaView style={sharedStyles.container}>
       <View style={styles.header}>
@@ -32,6 +38,13 @@ export function HomeScreen({ navigation }: any) {
           <Text style={styles.greeting}>Hello {user?.fullName || user?.username}!</Text>
           <Text style={styles.subtitle}>Your friends' newsflashes</Text>
         </View>
+        <TouchableOpacity 
+          style={styles.profileButton} 
+          onPress={handleProfilePress}
+          testID="profile-button"
+        >
+          <Ionicons name="person-outline" size={24} color="#007AFF" />
+        </TouchableOpacity>
       </View>
 
       <NotificationSettings />
@@ -44,6 +57,8 @@ export function HomeScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
@@ -61,5 +76,10 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: '#666',
+  },
+  profileButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: '#f0f8ff',
   },
 });
